@@ -6,9 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ScheduleRequestDto {
+public class CommentRequestDto {
     @NotBlank
-    private String title;
-    @NotBlank
-    private String todo;
+    private String comment;
 }

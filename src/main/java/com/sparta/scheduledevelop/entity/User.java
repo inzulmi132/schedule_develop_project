@@ -1,12 +1,12 @@
 package com.sparta.scheduledevelop.entity;
 
-import com.sparta.scheduledevelop.dto.UserRequestDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,23 +17,24 @@ public class User extends Timestamped{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
-    @NotBlank
-    private String username;
-    @Column
-    @NotBlank
-    private String password;
-    @Column
-    @Email
+    @Column(nullable = false, unique = true)
     private String email;
+    @Column(nullable = false)
+    private String username;
+    @Column(nullable = false)
+    private String password;
 
-    public User(UserRequestDto dto) {
-        this.username = dto.getUsername();
-        this.password = dto.getPassword();
-        this.email = dto.getEmail();
+    @ManyToMany(mappedBy = "userList")
+    private List<Schedule> scheduleList = new ArrayList<>();
+
+    public User(String email, String username, String password) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
     }
 
-    public void update(UserRequestDto dto) {
-        this.email = dto.getEmail();
+    public void update(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 }
