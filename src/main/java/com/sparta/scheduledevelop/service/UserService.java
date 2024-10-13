@@ -29,7 +29,7 @@ public class UserService {
     public UserResponseDto updateUser(Long id, UserRequestDto dto) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
         user.update(dto);
-        return new UserResponseDto(userRepository.save(user));
+        return new UserResponseDto(user);
     }
 
     public void deleteUser(Long id) {

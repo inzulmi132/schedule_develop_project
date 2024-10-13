@@ -5,7 +5,6 @@ import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.entity.Schedule;
 import com.sparta.scheduledevelop.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,11 +28,10 @@ public class ScheduleService {
         return new ScheduleResponseDto(findById(id));
     }
 
-    @Transactional
     public ScheduleResponseDto updateSchedule(Long id, ScheduleRequestDto dto) {
         Schedule schedule = findById(id);
         schedule.update(dto);
-        return new ScheduleResponseDto(scheduleRepository.save(schedule));
+        return new ScheduleResponseDto(schedule);
     }
 
     public void deleteSchedule(Long id) {
