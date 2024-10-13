@@ -22,7 +22,7 @@ public class ScheduleController {
 
     @GetMapping("")
     public List<ScheduleResponseDto> getAllSchedules() {
-        return scheduleService.findSchedules();
+        return scheduleService.findAllSchedules();
     }
 
     @GetMapping("/{id}")
