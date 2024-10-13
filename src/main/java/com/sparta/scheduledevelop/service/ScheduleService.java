@@ -7,7 +7,6 @@ import com.sparta.scheduledevelop.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -24,18 +23,6 @@ public class ScheduleService {
 
     public List<ScheduleResponseDto> findSchedules() {
         return scheduleRepository.findAllByOrderByModifiedAtDesc().stream().map(ScheduleResponseDto::new).toList();
-    }
-
-    public List<ScheduleResponseDto> findSchedulesByUsername(String username) {
-        return scheduleRepository.findAllByUsernameOrderByModifiedAtDesc(username).stream().map(ScheduleResponseDto::new).toList();
-    }
-
-    public List<ScheduleResponseDto> findSchedulesByModifiedAt(Date modifiedAt) {
-        return scheduleRepository.findAllByModifiedAtOrderByModifiedAtDesc(modifiedAt).stream().map(ScheduleResponseDto::new).toList();
-    }
-
-    public List<ScheduleResponseDto> findSchedulesByUsernameAndModifiedAt(String username, Date modifiedAt) {
-        return scheduleRepository.findAllByUsernameAndModifiedAtOrderByModifiedAtDesc(username, modifiedAt).stream().map(ScheduleResponseDto::new).toList();
     }
 
     public ScheduleResponseDto findScheduleById(Long id) {

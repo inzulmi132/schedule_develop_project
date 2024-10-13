@@ -16,14 +16,14 @@ public class Schedule extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String username;
+    private Long userId;
     @Column(nullable = false)
     private String title;
     @Column(nullable = false, length = 500)
     private String todo;
 
     public Schedule(ScheduleRequestDto dto) {
-        this.username = dto.getUsername();
+        this.userId = dto.getUserId();
         this.title = dto.getTitle();
         this.todo = dto.getTodo();
     }

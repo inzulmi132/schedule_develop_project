@@ -3,19 +3,19 @@ package com.sparta.scheduledevelop.dto;
 import com.sparta.scheduledevelop.entity.Schedule;
 import lombok.Getter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 public class ScheduleResponseDto {
     private final Long id;
-    private final String username;
+    private final Long userId;
     private final String title;
-    private final Date createdAt;
-    private final Date modifiedAt;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 
     public ScheduleResponseDto(Schedule schedule) {
         this.id = schedule.getId();
-        this.username = schedule.getUsername();
+        this.userId = schedule.getUserId();
         this.title = schedule.getTitle();
         this.createdAt = schedule.getCreatedAt();
         this.modifiedAt = schedule.getModifiedAt();
