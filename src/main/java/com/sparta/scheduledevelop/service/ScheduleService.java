@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class ScheduleService {
-    final private ScheduleRepository scheduleRepository;
+    private final ScheduleRepository scheduleRepository;
     public ScheduleService(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
     }

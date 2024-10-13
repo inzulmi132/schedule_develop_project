@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/schedules")
 public class ScheduleController {
-    final ScheduleService scheduleService;
+    private final ScheduleService scheduleService;
     public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
