@@ -29,7 +29,7 @@ public class Schedule extends Timestamped {
     }
 
     public void update(ScheduleRequestDto dto) {
-        this.setTitle(dto.getTitle());
-        this.setTodo(dto.getTodo());
+        this.title = dto.getTitle();
+        this.todo = dto.getTodo();
     }
 }
