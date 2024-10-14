@@ -32,7 +32,7 @@ public class AuthFilter implements Filter {
 
         if(!StringUtils.hasText(uri)) return;
         // 로그인이 필요 없는 경우.
-        if(uri.equals("/api/users/signup") || uri.equals("/api/users/login") || uri.equals("api/users")) {
+        if(uri.equals("/api/signup") || uri.equals("/api/login") || uri.equals("/api/users")) {
             chain.doFilter(request, response);
         } else {
             String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
