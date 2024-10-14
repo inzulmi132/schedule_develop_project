@@ -32,22 +32,21 @@ public class ScheduleController {
         return scheduleService.findAllSchedules();
     }
 
-    @GetMapping("/{id}")
-    public ScheduleResponseDto getSchedule(@PathVariable Long id) {
-        return scheduleService.findScheduleById(id);
+    @GetMapping("/{scheduleId}")
+    public ScheduleResponseDto getSchedule(@PathVariable Long scheduleId) {
+        return scheduleService.findScheduleById(scheduleId);
     }
 
-    @PutMapping("/{id}/edit")
-    public String updateSchedule(HttpServletRequest request, @PathVariable Long id, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
+    @PutMapping("/{scheduleId}/edit")
+    public String updateSchedule(HttpServletRequest request, @PathVariable Long scheduleId, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
-        return scheduleService.updateSchedule(request, id, dto);
+        return scheduleService.updateSchedule(request, scheduleId, dto);
     }
 
-    @DeleteMapping("/{id}/delete")
-    public String deleteSchedule(HttpServletRequest request, @PathVariable Long id) {
-        return scheduleService.deleteSchedule(request, id);
+    @DeleteMapping("/{scheduleId}/delete")
+    public String deleteSchedule(HttpServletRequest request, @PathVariable Long scheduleId) {
+        return scheduleService.deleteSchedule(request, scheduleId);
     }
-
 
     public boolean validationCheck(List<FieldError> fieldErrors) {
         if(fieldErrors.isEmpty()) return false;

@@ -29,12 +29,12 @@ public class ScheduleService {
         return scheduleRepository.findAllByOrderByModifiedAtDesc().stream().map(ScheduleResponseDto::new).toList();
     }
 
-    public ScheduleResponseDto findScheduleById(Long id) {
-        return new ScheduleResponseDto(findById(id));
+    public ScheduleResponseDto findScheduleById(Long scheduleId) {
+        return new ScheduleResponseDto(findById(scheduleId));
     }
 
-    public String updateSchedule(HttpServletRequest request, Long id, ScheduleRequestDto dto) {
-        Schedule schedule = findById(id);
+    public String updateSchedule(HttpServletRequest request, Long scheduleId, ScheduleRequestDto dto) {
+        Schedule schedule = findById(scheduleId);
         User creator = schedule.getCreator();
         User user = (User) request.getAttribute("user");
 
@@ -45,18 +45,18 @@ public class ScheduleService {
         return "Schedule updated";
     }
 
-    public String deleteSchedule(HttpServletRequest request, Long id) {
-        Schedule schedule = findById(id);
+    public String deleteSchedule(HttpServletRequest request, Long scheduleId) {
+        Schedule schedule = findById(scheduleId);
         User creator = schedule.getCreator();
         User user = (User) request.getAttribute("user");
 
         if(!Objects.equals(creator.getId(), user.getId())) return "You are not allowed to delete this schedule";
-        scheduleRepository.deleteById(id);
+        scheduleRepository.deleteById(scheduleId);
         return "Schedule deleted";
     }
 
-    public Schedule findById(Long id) {
-        return scheduleRepository.findById(id)
+    public Schedule findById(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
     }
 }

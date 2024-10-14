@@ -23,12 +23,13 @@ public class Schedule extends Timestamped {
     @Column(nullable = false)
     private String todo;
 
-    @OneToMany
-    @JoinColumn(name = "comment_id")
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
     private List<Comment> comment = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User creator;
+
     /*
     @ManyToMany
     @JoinTable(name = "total",
