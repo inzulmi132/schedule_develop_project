@@ -1,7 +1,6 @@
 package com.sparta.scheduledevelop.service;
 
 import com.sparta.scheduledevelop.dto.CommentRequestDto;
-import com.sparta.scheduledevelop.dto.CommentResponseDto;
 import com.sparta.scheduledevelop.entity.Comment;
 import com.sparta.scheduledevelop.entity.Schedule;
 import com.sparta.scheduledevelop.entity.User;
@@ -31,8 +30,8 @@ public class CommentService {
         return "Comment created";
     }
 
-    public List<CommentResponseDto> findComments(Long scheduleId) {
-        return commentRepository.findAllByScheduleId(scheduleId).stream().map(CommentResponseDto::new).toList();
+    public List<Comment> findComments(Long scheduleId) {
+        return commentRepository.findAllByScheduleId(scheduleId);
     }
 
     public String updateComment(User user, Long commentId, CommentRequestDto dto) {

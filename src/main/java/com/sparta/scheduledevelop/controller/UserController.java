@@ -2,6 +2,7 @@ package com.sparta.scheduledevelop.controller;
 
 import com.sparta.scheduledevelop.dto.UserRequestDto;
 import com.sparta.scheduledevelop.dto.UserResponseDto;
+import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.jwt.JwtUtil;
 import com.sparta.scheduledevelop.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,18 +41,20 @@ public class UserController {
 
     @GetMapping
     public List<UserResponseDto> findAllUsers() {
-        return userService.findAllUsers();
+        return userService.findAllUsers().stream().map(UserResponseDto::new).toList();
     }
 
     @PutMapping("/edit")
     public String updateUser(HttpServletRequest request, @Valid UserRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
-        return userService.updateUser(request, dto);
+        User user = (User) request.getAttribute("user");
+        return userService.updateUser(user, dto);
     }
 
     @DeleteMapping("/delete")
     public String deleteUser(HttpServletRequest request) {
-        return userService.deleteUser(request);
+        User user = (User) request.getAttribute("user");
+        return userService.deleteUser(user);
     }
 
     public boolean validationCheck(List<FieldError> fieldErrors) {

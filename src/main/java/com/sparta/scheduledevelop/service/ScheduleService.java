@@ -1,7 +1,6 @@
 package com.sparta.scheduledevelop.service;
 
 import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
-import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.entity.Schedule;
 import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.repository.ScheduleRepository;
@@ -26,19 +25,19 @@ public class ScheduleService {
         return "Schedule created";
     }
 
-    public List<ScheduleResponseDto> findAllSchedules() {
-        return scheduleRepository.findAllByOrderByModifiedAtDesc().stream().map(ScheduleResponseDto::new).toList();
+    public List<Schedule> findAllSchedules() {
+        return scheduleRepository.findAllByOrderByModifiedAtDesc();
     }
 
-    public ScheduleResponseDto findScheduleById(Long scheduleId) {
-        return new ScheduleResponseDto(findById(scheduleId));
+    public Schedule findScheduleById(Long scheduleId) {
+        return findById(scheduleId);
     }
 
-    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, int size, String sortBy, boolean isAsc) {
+    public Page<Schedule> findAllSchedulesByPage(int page, int size, String sortBy, boolean isAsc) {
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return scheduleRepository.findAll(pageable).map(ScheduleResponseDto::new);
+        return scheduleRepository.findAll(pageable);
     }
 
     public String updateSchedule(User user, Long scheduleId, ScheduleRequestDto dto) {

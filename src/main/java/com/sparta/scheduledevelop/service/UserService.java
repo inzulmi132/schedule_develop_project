@@ -2,10 +2,8 @@ package com.sparta.scheduledevelop.service;
 
 import com.sparta.scheduledevelop.config.PasswordEncoder;
 import com.sparta.scheduledevelop.dto.UserRequestDto;
-import com.sparta.scheduledevelop.dto.UserResponseDto;
 import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -40,27 +38,24 @@ public class UserService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
-
         if(!passwordEncoder.matches(password, user.getPassword()))
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 
-        return user.getEmail();
+        return email;
     }
 
-    public List<UserResponseDto> findAllUsers() {
-        return userRepository.findAllByOrderByModifiedAtDesc().stream().map(UserResponseDto::new).toList();
+    public List<User> findAllUsers() {
+        return userRepository.findAllByOrderByModifiedAtDesc();
     }
 
-    public String updateUser(HttpServletRequest request, UserRequestDto dto) {
-        User user = (User) request.getAttribute("user");
+    public String updateUser(User user, UserRequestDto dto) {
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         userRepository.save(user);
         return "Update Success";
     }
 
-    public String deleteUser(HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
+    public String deleteUser(User user) {
         userRepository.delete(user);
         return "Delete Success";
     }

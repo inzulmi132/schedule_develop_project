@@ -32,17 +32,17 @@ public class ScheduleController {
 
     @GetMapping
     public List<ScheduleResponseDto> findAllSchedules() {
-        return scheduleService.findAllSchedules();
+        return scheduleService.findAllSchedules().stream().map(ScheduleResponseDto::new).toList();
     }
 
     @GetMapping("/{scheduleId}")
     public ScheduleResponseDto findSchedule(@PathVariable Long scheduleId) {
-        return scheduleService.findScheduleById(scheduleId);
+        return new ScheduleResponseDto(scheduleService.findScheduleById(scheduleId));
     }
 
     @GetMapping("/paging")
-    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, int size, String sortBy, boolean isAsc) {
-        return scheduleService.findAllSchedulesByPage(page, size, sortBy, isAsc);
+    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, @RequestParam(required = false, defaultValue = "10") int size, String sortBy, boolean isAsc) {
+        return scheduleService.findAllSchedulesByPage(page-1, size, sortBy, isAsc).map(ScheduleResponseDto::new);
     }
 
     @PutMapping("/{scheduleId}/edit")

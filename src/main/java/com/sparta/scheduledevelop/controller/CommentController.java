@@ -31,7 +31,7 @@ public class CommentController {
 
     @GetMapping("/{scheduleId}")
     public List<CommentResponseDto> findComments(@PathVariable Long scheduleId) {
-        return commentService.findComments(scheduleId);
+        return commentService.findComments(scheduleId).stream().map(CommentResponseDto::new).toList();
     }
 
     @PutMapping("/{commentId}")
