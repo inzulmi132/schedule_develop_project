@@ -9,7 +9,6 @@ import com.sparta.scheduledevelop.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +56,6 @@ public class UserService {
         return userRepository.findAllByOrderByModifiedAtDesc().stream().map(UserResponseDto::new).toList();
     }
 
-    @Transactional
     public String updateUser(HttpServletRequest request, UserRequestDto dto) {
         User user = (User) request.getAttribute("user");
         user.setUsername(dto.getUsername());

@@ -32,9 +32,7 @@ public class AuthFilter implements Filter {
 
         if(!StringUtils.hasText(uri)) return;
         // 로그인이 필요 없는 경우.
-        if(uri.endsWith("login") || uri.endsWith("signup") || uri.endsWith("write") || uri.endsWith("edit") || uri.endsWith("delete")) {
-            chain.doFilter(request, response);
-        } else {
+        if(uri.endsWith("write") || uri.endsWith("edit") || uri.endsWith("delete")) {
             String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
             if(!StringUtils.hasText(tokenValue)) throw new IllegalArgumentException("Not Found Token");
 
@@ -43,11 +41,10 @@ public class AuthFilter implements Filter {
 
             Claims info = jwtUtil.getUserInfoFromToken(token);
             User user = userRepository.findByEmail(info.getSubject())
-                    .orElseThrow(() -> new NullPointerException("Not Found User")
-                    );
+                    .orElseThrow(() -> new NullPointerException("Not Found User"));
 
             request.setAttribute("user", user);
-            chain.doFilter(request, response);
         }
+        chain.doFilter(request, response);
     }
 }
