@@ -19,7 +19,6 @@ public class Comment extends Timestamped{
     @Column(nullable = false)
     private String comment;
 
-    @Column(nullable = false)
     @ManyToOne
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
