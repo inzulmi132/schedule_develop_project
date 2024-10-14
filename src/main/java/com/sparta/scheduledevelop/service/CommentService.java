@@ -26,6 +26,7 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
 
         Comment comment = new Comment(dto.getText(), user, schedule);
+        schedule.getCommentList().add(comment);
         commentRepository.save(comment);
         return "Comment created";
     }
