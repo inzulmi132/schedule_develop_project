@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 public class CommentRequestDto {
     @NotBlank
-    private String comment;
+    private String text;
 }

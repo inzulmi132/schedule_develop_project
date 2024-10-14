@@ -15,17 +15,19 @@ public class Comment extends Timestamped{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String username;
-    @Column(nullable = false)
-    private String comment;
+    private String text;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User creator;
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
-    Comment(String username, String comment, Schedule schedule) {
-        this.username = username;
-        this.comment = comment;
+    public Comment(String text, User user, Schedule schedule) {
+        this.text = text;
+        this.creator = user;
         this.schedule = schedule;
     }
 }
