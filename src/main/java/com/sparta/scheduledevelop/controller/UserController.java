@@ -15,7 +15,7 @@ import java.util.List;
 
 @Slf4j(topic = "userController")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
     public UserController(UserService userService) {
@@ -33,7 +33,7 @@ public class UserController {
         return userService.login(dto, response);
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public List<UserResponseDto> findAllUsers() {
         return userService.findAllUsers();
     }
@@ -44,7 +44,7 @@ public class UserController {
         return userService.updateUser(request, dto);
     }
 
-    @DeleteMapping("/quit")
+    @DeleteMapping("/delete")
     public String deleteUser(HttpServletRequest request) {
         return userService.deleteUser(request);
     }
