@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
+@Slf4j(topic = "userController")
 @RestController
 @RequestMapping("/api")
 public class UserController {
