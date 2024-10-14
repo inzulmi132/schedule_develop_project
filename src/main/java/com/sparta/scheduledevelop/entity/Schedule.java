@@ -1,5 +1,6 @@
 package com.sparta.scheduledevelop.entity;
 
+import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,15 +23,29 @@ public class Schedule extends Timestamped {
     @Column(nullable = false)
     private String todo;
 
+    @OneToMany
+    @JoinColumn(name = "comment_id")
+    private List<Comment> comment = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User creator;
+    /*
     @ManyToMany
     @JoinTable(name = "total",
     joinColumns = @JoinColumn(name = "schedule_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> userList = new ArrayList<>();
+     */
 
     public Schedule(String title, String todo) {
         this.title = title;
         this.todo = todo;
+    }
+
+    public Schedule(ScheduleRequestDto dto, User creator) {
+        this.title = dto.getTitle();
+        this.todo = dto.getTodo();
+        this.creator = creator;
     }
 
     public void update(String title, String todo) {

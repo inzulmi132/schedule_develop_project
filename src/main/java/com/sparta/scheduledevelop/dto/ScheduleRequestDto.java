@@ -1,14 +1,14 @@
 package com.sparta.scheduledevelop.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class ScheduleRequestDto {
-    @NotBlank
+    @Size(min = 1, max = 20)
     private String title;
-    @NotBlank
+    @Size(min = 1, max = 500)
     private String todo;
 }
