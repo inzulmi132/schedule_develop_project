@@ -1,19 +1,19 @@
 package com.sparta.scheduledevelop.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.UniqueElements;
 
 @Getter
 @Setter
 public class UserRequestDto {
     @Email
-    @UniqueElements
+    @NotBlank
     private String email;
-    @Min(3)
+    @NotBlank
     private String username;
-    @Min(6)
+    @Size(min = 6, max = 20)
     private String password;
 }
