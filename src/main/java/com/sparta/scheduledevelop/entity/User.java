@@ -25,6 +25,7 @@ public class User extends Timestamped{
     @ManyToMany(mappedBy = "userList")
     private List<Schedule> scheduleList = new ArrayList<>();
     */
+
     public User(String email, String username, String password) {
         this.email = email;
         this.username = username;
