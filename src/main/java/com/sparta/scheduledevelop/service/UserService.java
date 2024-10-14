@@ -4,10 +4,8 @@ import com.sparta.scheduledevelop.config.PasswordEncoder;
 import com.sparta.scheduledevelop.dto.UserRequestDto;
 import com.sparta.scheduledevelop.dto.UserResponseDto;
 import com.sparta.scheduledevelop.entity.User;
-import com.sparta.scheduledevelop.jwt.JwtUtil;
 import com.sparta.scheduledevelop.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -17,12 +15,10 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
     }
 
     public String signup(UserRequestDto dto) {
@@ -38,18 +34,17 @@ public class UserService {
         return "Signup Success";
     }
 
-    public String login(UserRequestDto dto, HttpServletResponse response) {
+    public String login(UserRequestDto dto) {
         String email = dto.getEmail();
         String password = dto.getPassword();
 
-        User user = userRepository.findByEmail(email).orElse(null);
-        if(user == null) return "등록된 Email이 없습니다.";
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
 
-        if(!passwordEncoder.matches(password, user.getPassword())) return "비밀번호가 일치하지 않습니다.";
+        if(!passwordEncoder.matches(password, user.getPassword()))
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 
-        String token = jwtUtil.createToken(user.getEmail());
-        jwtUtil.addJwtToCookie(token, response);
-        return "Login Success";
+        return user.getEmail();
     }
 
     public List<UserResponseDto> findAllUsers() {

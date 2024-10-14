@@ -2,6 +2,7 @@ package com.sparta.scheduledevelop.controller;
 
 import com.sparta.scheduledevelop.dto.UserRequestDto;
 import com.sparta.scheduledevelop.dto.UserResponseDto;
+import com.sparta.scheduledevelop.jwt.JwtUtil;
 import com.sparta.scheduledevelop.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,8 +19,10 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
-    public UserController(UserService userService) {
+    private final JwtUtil jwtUtil;
+    public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/signup")
@@ -30,7 +33,9 @@ public class UserController {
 
     @PostMapping("/login")
     public String login(UserRequestDto dto, HttpServletResponse response) {
-        return userService.login(dto, response);
+        String token = jwtUtil.createToken(userService.login(dto));
+        jwtUtil.addJwtToCookie(token, response);
+        return "Login Success";
     }
 
     @GetMapping
