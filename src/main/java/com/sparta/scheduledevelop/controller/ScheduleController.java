@@ -6,6 +6,7 @@ import com.sparta.scheduledevelop.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +34,13 @@ public class ScheduleController {
     }
 
     @GetMapping("/{scheduleId}")
-    public ScheduleResponseDto getSchedule(@PathVariable Long scheduleId) {
+    public ScheduleResponseDto findSchedule(@PathVariable Long scheduleId) {
         return scheduleService.findScheduleById(scheduleId);
+    }
+
+    @GetMapping("/paging")
+    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, int size, String sortBy, boolean isAsc) {
+        return scheduleService.findAllSchedulesByPage(page, size, sortBy, isAsc);
     }
 
     @PutMapping("/{scheduleId}/edit")

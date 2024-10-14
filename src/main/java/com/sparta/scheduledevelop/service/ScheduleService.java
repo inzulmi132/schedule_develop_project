@@ -6,6 +6,10 @@ import com.sparta.scheduledevelop.entity.Schedule;
 import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.repository.ScheduleRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +35,13 @@ public class ScheduleService {
 
     public ScheduleResponseDto findScheduleById(Long scheduleId) {
         return new ScheduleResponseDto(findById(scheduleId));
+    }
+
+    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return scheduleRepository.findAll(pageable).map(ScheduleResponseDto::new);
     }
 
     public String updateSchedule(HttpServletRequest request, Long scheduleId, ScheduleRequestDto dto) {
