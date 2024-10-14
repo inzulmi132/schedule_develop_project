@@ -26,17 +26,15 @@ public class Schedule extends Timestamped {
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
     private List<Comment> commentList = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User creator;
 
-    /*
     @ManyToMany
-    @JoinTable(name = "total",
+    @JoinTable(name = "userSchedule",
     joinColumns = @JoinColumn(name = "schedule_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> userList = new ArrayList<>();
-     */
+    private List<User> authorList = new ArrayList<>();
 
     public Schedule(String title, String todo) {
         this.title = title;

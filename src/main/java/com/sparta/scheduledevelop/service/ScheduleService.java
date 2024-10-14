@@ -5,7 +5,6 @@ import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.entity.Schedule;
 import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.repository.ScheduleRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ScheduleService {
@@ -22,8 +20,7 @@ public class ScheduleService {
         this.scheduleRepository = scheduleRepository;
     }
 
-    public String createSchedule(HttpServletRequest request, ScheduleRequestDto dto) {
-        User creator = (User) request.getAttribute("user");
+    public String createSchedule(User creator, ScheduleRequestDto dto) {
         Schedule schedule = new Schedule(dto, creator);
         scheduleRepository.save(schedule);
         return "Schedule created";
@@ -44,24 +41,19 @@ public class ScheduleService {
         return scheduleRepository.findAll(pageable).map(ScheduleResponseDto::new);
     }
 
-    public String updateSchedule(HttpServletRequest request, Long scheduleId, ScheduleRequestDto dto) {
+    public String updateSchedule(User user, Long scheduleId, ScheduleRequestDto dto) {
         Schedule schedule = findById(scheduleId);
-        User creator = schedule.getCreator();
-        User user = (User) request.getAttribute("user");
+        if(isAuthorized(user, schedule)) return "You are not allowed to update this schedule";
 
-        if(!Objects.equals(creator.getId(), user.getId())) return "You are not allowed to update this schedule";
         schedule.setTitle(dto.getTitle());
         schedule.setTodo(dto.getTodo());
         scheduleRepository.save(schedule);
         return "Schedule updated";
     }
 
-    public String deleteSchedule(HttpServletRequest request, Long scheduleId) {
+    public String deleteSchedule(User user, Long scheduleId) {
         Schedule schedule = findById(scheduleId);
-        User creator = schedule.getCreator();
-        User user = (User) request.getAttribute("user");
-
-        if(!Objects.equals(creator.getId(), user.getId())) return "You are not allowed to delete this schedule";
+        if(isAuthorized(user, schedule)) return "You are not allowed to delete this schedule";
         scheduleRepository.deleteById(scheduleId);
         return "Schedule deleted";
     }
@@ -69,5 +61,11 @@ public class ScheduleService {
     public Schedule findById(Long scheduleId) {
         return scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
+    }
+
+    public boolean isAuthorized(User user, Schedule schedule) {
+        User creator = schedule.getCreator();
+        List<User> authorList = schedule.getAuthorList();
+        return authorList.contains(user) || creator.getId().equals(user.getId());
     }
 }

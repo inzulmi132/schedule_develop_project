@@ -2,6 +2,7 @@ package com.sparta.scheduledevelop.controller;
 
 import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
+import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -25,7 +26,8 @@ public class ScheduleController {
     @PostMapping("/write")
     public String createSchedule(HttpServletRequest request, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
-        return scheduleService.createSchedule(request, dto);
+        User user = (User) request.getAttribute("user");
+        return scheduleService.createSchedule(user, dto);
     }
 
     @GetMapping
@@ -46,12 +48,14 @@ public class ScheduleController {
     @PutMapping("/{scheduleId}/edit")
     public String updateSchedule(HttpServletRequest request, @PathVariable Long scheduleId, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
-        return scheduleService.updateSchedule(request, scheduleId, dto);
+        User user = (User) request.getAttribute("user");
+        return scheduleService.updateSchedule(user, scheduleId, dto);
     }
 
     @DeleteMapping("/{scheduleId}/delete")
     public String deleteSchedule(HttpServletRequest request, @PathVariable Long scheduleId) {
-        return scheduleService.deleteSchedule(request, scheduleId);
+        User user = (User) request.getAttribute("user");
+        return scheduleService.deleteSchedule(user, scheduleId);
     }
 
     public boolean validationCheck(List<FieldError> fieldErrors) {

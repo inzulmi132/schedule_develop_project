@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -21,10 +24,11 @@ public class User extends Timestamped{
     @Column(nullable = false)
     private String password;
 
-    /*
-    @ManyToMany(mappedBy = "userList")
+    @OneToMany(mappedBy = "user_id")
     private List<Schedule> scheduleList = new ArrayList<>();
-    */
+
+    @ManyToMany(mappedBy = "authorList")
+    private List<Schedule> authList = new ArrayList<>();
 
     public User(String email, String username, String password) {
         this.email = email;
