@@ -31,7 +31,7 @@ public class AuthFilter implements Filter {
         String uri = httpServletRequest.getRequestURI();
 
         if(!StringUtils.hasText(uri)) return;
-        // 로그인이 필요 없는 경우.
+        // 로그인이 필요한 경우.
         if(uri.endsWith("write") || uri.endsWith("edit") || uri.endsWith("delete")) {
             String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
             if(!StringUtils.hasText(tokenValue)) throw new IllegalArgumentException("Not Found Token");
