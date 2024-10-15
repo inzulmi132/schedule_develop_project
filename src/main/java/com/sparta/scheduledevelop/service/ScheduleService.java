@@ -33,9 +33,8 @@ public class ScheduleService {
         return findById(scheduleId);
     }
 
-    public Page<Schedule> findAllSchedulesByPage(int page, int size, String sortBy, boolean isAsc) {
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortBy);
+    public Page<Schedule> findAllSchedulesByPage(int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "modifiedAt");
         Pageable pageable = PageRequest.of(page, size, sort);
         return scheduleRepository.findAll(pageable);
     }

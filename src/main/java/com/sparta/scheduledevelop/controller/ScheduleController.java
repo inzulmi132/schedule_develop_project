@@ -41,8 +41,8 @@ public class ScheduleController {
     }
 
     @GetMapping("/paging")
-    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, @RequestParam(required = false, defaultValue = "10") int size, String sortBy, boolean isAsc) {
-        return scheduleService.findAllSchedulesByPage(page-1, size, sortBy, isAsc).map(ScheduleResponseDto::new);
+    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, @RequestParam(required = false, defaultValue = "10") int size) {
+        return scheduleService.findAllSchedulesByPage(page-1, size).map(ScheduleResponseDto::new);
     }
 
     @PutMapping("/{scheduleId}/edit")
