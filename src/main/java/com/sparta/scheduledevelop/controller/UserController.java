@@ -34,7 +34,8 @@ public class UserController {
 
     @PostMapping("/login")
     public String login(UserRequestDto dto, HttpServletResponse response) {
-        String token = jwtUtil.createToken(userService.login(dto));
+        User user = userService.login(dto);
+        String token = jwtUtil.createToken(user.getEmail(), user.getRole());
         jwtUtil.addJwtToCookie(token, response);
         return "Login Success";
     }

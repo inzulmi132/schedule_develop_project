@@ -16,4 +16,6 @@ public class UserRequestDto {
     private String username;
     @Size(min = 6, max = 20)
     private String password;
+    private boolean admin = false;
+    private String adminToken = "";
 }

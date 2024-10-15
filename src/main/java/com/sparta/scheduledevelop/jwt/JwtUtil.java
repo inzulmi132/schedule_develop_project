@@ -1,5 +1,6 @@
 package com.sparta.scheduledevelop.jwt;
 
+import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -37,17 +38,17 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String createToken(String email) {
+    public String createToken(String email, UserRoleEnum role) {
         Date date = new Date();
         final long TOKEN_TIME = 60 * 60 * 1000L;
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(email) // user email
-                        .claim(AUTHORIZATION_KEY, null) // 사용자 권한
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
-                        .setIssuedAt(date) // 발급일
-                        .signWith(key, signatureAlgorithm) // 암호화 알고리즘
+                        .setSubject(email)
+                        .claim(AUTHORIZATION_KEY, role)
+                        .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+                        .setIssuedAt(date)
+                        .signWith(key, signatureAlgorithm)
                         .compact();
     }
 

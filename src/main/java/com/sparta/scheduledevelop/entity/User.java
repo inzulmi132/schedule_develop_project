@@ -23,6 +23,9 @@ public class User extends Timestamped{
     private String username;
     @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRoleEnum role;
 
     @OneToMany(mappedBy = "user_id")
     private List<Schedule> scheduleList = new ArrayList<>();
@@ -30,14 +33,10 @@ public class User extends Timestamped{
     @ManyToMany(mappedBy = "authorList")
     private List<Schedule> authList = new ArrayList<>();
 
-    public User(String email, String username, String password) {
+    public User(String email, String username, String password, UserRoleEnum role) {
         this.email = email;
         this.username = username;
         this.password = password;
-    }
-
-    public void update(String username, String password) {
-        this.username = username;
-        this.password = password;
+        this.role = role;
     }
 }

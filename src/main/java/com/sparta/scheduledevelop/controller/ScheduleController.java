@@ -3,6 +3,7 @@ package com.sparta.scheduledevelop.controller;
 import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.entity.User;
+import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -49,12 +50,14 @@ public class ScheduleController {
     public String updateSchedule(HttpServletRequest request, @PathVariable Long scheduleId, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         User user = (User) request.getAttribute("user");
+        if(user.getRole() != UserRoleEnum.ADMIN) return "관리자만 일정을 수정할 수 있습니다.";
         return scheduleService.updateSchedule(user, scheduleId, dto);
     }
 
     @DeleteMapping("/{scheduleId}/delete")
     public String deleteSchedule(HttpServletRequest request, @PathVariable Long scheduleId) {
         User user = (User) request.getAttribute("user");
+        if(user.getRole() != UserRoleEnum.ADMIN) return "관리자만 일정을 삭제할 수 있습니다.";
         return scheduleService.deleteSchedule(user, scheduleId);
     }
 
