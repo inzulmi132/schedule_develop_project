@@ -36,19 +36,9 @@ public class Schedule extends Timestamped {
     inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> authorList = new ArrayList<>();
 
-    public Schedule(String title, String todo) {
-        this.title = title;
-        this.todo = todo;
-    }
-
     public Schedule(ScheduleRequestDto dto, User creator) {
         this.title = dto.getTitle();
         this.todo = dto.getTodo();
         this.creator = creator;
-    }
-
-    public void update(String title, String todo) {
-        this.title = title;
-        this.todo = todo;
     }
 }
