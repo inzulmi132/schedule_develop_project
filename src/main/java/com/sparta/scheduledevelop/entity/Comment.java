@@ -19,7 +19,7 @@ public class Comment extends Timestamped{
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User creator;
+    private User commentCreator;
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")
@@ -27,7 +27,7 @@ public class Comment extends Timestamped{
 
     public Comment(String text, User user, Schedule schedule) {
         this.text = text;
-        this.creator = user;
+        this.commentCreator = user;
         this.schedule = schedule;
     }
 }

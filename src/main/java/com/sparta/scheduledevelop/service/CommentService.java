@@ -38,7 +38,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
-        if(!Objects.equals(user.getId(), comment.getCreator().getId())) return "You don't have permission to update this text";
+        if(!Objects.equals(user.getId(), comment.getCommentCreator().getId())) return "You don't have permission to update this text";
         comment.setText(dto.getText());
         commentRepository.save(comment);
         return "Comment updated";
@@ -48,7 +48,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
-        if(!Objects.equals(user.getId(), comment.getCreator().getId())) return "You don't have permission to delete this text";
+        if(!Objects.equals(user.getId(), comment.getCommentCreator().getId())) return "You don't have permission to delete this text";
         commentRepository.delete(comment);
         return "Comment deleted";
     }

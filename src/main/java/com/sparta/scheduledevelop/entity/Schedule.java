@@ -28,7 +28,7 @@ public class Schedule extends Timestamped {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User creator;
+    private User scheduleCreator;
 
     @ManyToMany
     @JoinTable(name = "userSchedule",
@@ -36,9 +36,9 @@ public class Schedule extends Timestamped {
     inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> authorList = new ArrayList<>();
 
-    public Schedule(ScheduleRequestDto dto, User creator) {
+    public Schedule(ScheduleRequestDto dto, User scheduleCreator) {
         this.title = dto.getTitle();
         this.todo = dto.getTodo();
-        this.creator = creator;
+        this.scheduleCreator = scheduleCreator;
     }
 }

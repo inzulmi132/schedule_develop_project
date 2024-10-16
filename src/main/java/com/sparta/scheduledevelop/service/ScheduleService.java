@@ -62,7 +62,7 @@ public class ScheduleService {
     }
 
     public boolean isAuthorized(User user, Schedule schedule) {
-        User creator = schedule.getCreator();
+        User creator = schedule.getScheduleCreator();
         List<User> authorList = schedule.getAuthorList();
         return authorList.contains(user) || creator.getId().equals(user.getId());
     }

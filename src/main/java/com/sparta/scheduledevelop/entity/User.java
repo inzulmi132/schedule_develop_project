@@ -27,7 +27,7 @@ public class User extends Timestamped{
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
 
-    @OneToMany(mappedBy = "user_id")
+    @OneToMany(mappedBy = "scheduleCreator")
     private List<Schedule> scheduleList = new ArrayList<>();
 
     @ManyToMany(mappedBy = "authorList")
