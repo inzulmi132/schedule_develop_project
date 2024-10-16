@@ -86,6 +86,7 @@ public class JwtUtil {
             logger.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
             return "JWT claims is empty, 잘못된 JWT 토큰 입니다.";
         }
+        return false;
     }
 
     public Claims getUserInfoFromToken(String token) {

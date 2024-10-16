@@ -22,6 +22,8 @@ public class Schedule extends Timestamped {
     private String title;
     @Column(nullable = false)
     private String todo;
+    @Column(nullable = false)
+    private String weather;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
     private List<Comment> commentList = new ArrayList<>();
@@ -36,9 +38,10 @@ public class Schedule extends Timestamped {
     inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> authorList = new ArrayList<>();
 
-    public Schedule(ScheduleRequestDto dto, User scheduleCreator) {
+    public Schedule(User scheduleCreator, ScheduleRequestDto dto, String weather) {
+        this.scheduleCreator = scheduleCreator;
         this.title = dto.getTitle();
         this.todo = dto.getTodo();
-        this.scheduleCreator = scheduleCreator;
+        this.weather = weather;
     }
 }

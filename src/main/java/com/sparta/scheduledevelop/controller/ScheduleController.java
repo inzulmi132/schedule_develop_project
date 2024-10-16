@@ -1,5 +1,7 @@
 package com.sparta.scheduledevelop.controller;
 
+import com.sparta.scheduledevelop.client.WeatherClient;
+import com.sparta.scheduledevelop.client.WeatherResponse;
 import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.entity.User;
@@ -13,23 +15,36 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j(topic = "scheduleController")
 @RestController
 @RequestMapping("/api/schedules")
 public class ScheduleController {
     private final ScheduleService scheduleService;
-
-    public ScheduleController(ScheduleService scheduleService) {
+    private final WeatherClient weatherClient;
+    public ScheduleController(ScheduleService scheduleService, WeatherClient weatherClient) {
         this.scheduleService = scheduleService;
+        this.weatherClient = weatherClient;
     }
 
     @PostMapping("/write")
     public String createSchedule(HttpServletRequest request, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         User user = (User) request.getAttribute("user");
-        return scheduleService.createSchedule(user, dto);
+
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("MM-dd"));
+        String weather = weatherClient.getWeather().stream()
+                .filter(weatherResponse -> Objects.equals(weatherResponse.getDate(), today))
+                .map(WeatherResponse::getWeather)
+                .findFirst()
+                .orElse(null);
+        if(weather == null) return "Weather Not Found";
+
+        return scheduleService.createSchedule(user, dto, weather);
     }
 
     @PostMapping("/{scheduleId}/{authorId}")

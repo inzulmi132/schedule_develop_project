@@ -18,14 +18,13 @@ import java.util.Objects;
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
-
     public ScheduleService(ScheduleRepository scheduleRepository, UserRepository userRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userRepository = userRepository;
     }
 
-    public String createSchedule(User creator, ScheduleRequestDto dto) {
-        Schedule schedule = new Schedule(dto, creator);
+    public String createSchedule(User creator, ScheduleRequestDto dto, String weather) {
+        Schedule schedule = new Schedule(creator, dto, weather);
         scheduleRepository.save(schedule);
         return "Schedule created";
     }
