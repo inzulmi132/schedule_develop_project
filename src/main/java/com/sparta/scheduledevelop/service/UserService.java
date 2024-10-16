@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Controller
 public class UserService {
@@ -27,8 +26,8 @@ public class UserService {
         String username = dto.getUsername();
         String password = passwordEncoder.encode(dto.getPassword());
 
-        Optional<User> checkUser = userRepository.findByEmail(email);
-        if(checkUser.isPresent()) return "중복된 Email 입니다.";
+        User checkUser = userRepository.findByEmail(email).orElse(null);
+        if(checkUser != null) return "중복된 Email 입니다.";
 
         UserRoleEnum role = UserRoleEnum.USER;
         if(dto.isAdmin()) {
@@ -45,10 +44,9 @@ public class UserService {
         String email = dto.getEmail();
         String password = dto.getPassword();
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
-        if(!passwordEncoder.matches(password, user.getPassword()))
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        User user = userRepository.findByEmail(email).orElse(null);
+        if(user == null) return null;
+        if(!passwordEncoder.matches(password, user.getPassword())) return null;
 
         return user;
     }

@@ -31,17 +31,22 @@ public class ScheduleService {
     }
 
     public String addScheduleAuthor(User user, Long scheduleId, Long authorId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
-        if(!Objects.equals(user.getEmail(), schedule.getScheduleCreator().getEmail())) return "You are not allowed to add author this schedule";
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+        if(schedule == null)
+            return "Schedule not found";
 
-        User author = userRepository.findById(authorId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        if(!Objects.equals(user.getEmail(), schedule.getScheduleCreator().getEmail()))
+            return "You are not allowed to add author this schedule";
+
+        User author = userRepository.findById(authorId).orElse(null);
+        if(author == null)
+            return "Author not found";
 
         schedule.getAuthorList().add(author);
         scheduleRepository.save(schedule);
         author.getScheduleList().add(schedule);
         userRepository.save(author);
+
         return "Author added";
     }
 

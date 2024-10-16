@@ -53,7 +53,7 @@ public class ScheduleController {
         return scheduleService.findAllSchedulesByPage(page-1, size).map(ScheduleResponseDto::new);
     }
 
-    @PutMapping("/{scheduleId}/edit")
+    @PutMapping("/{scheduleId}/update")
     public String updateSchedule(HttpServletRequest request, @PathVariable Long scheduleId, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");

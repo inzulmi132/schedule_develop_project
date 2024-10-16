@@ -7,6 +7,7 @@ import com.sparta.scheduledevelop.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -32,17 +33,32 @@ public class AuthFilter implements Filter {
         String uri = httpServletRequest.getRequestURI();
 
         // 로그인이 필요한 경우.
-        if(StringUtils.hasText(uri) && (uri.endsWith("write") || uri.endsWith("edit") || uri.endsWith("delete"))) {
+        if(StringUtils.hasText(uri) && (uri.endsWith("write") || uri.endsWith("update") || uri.endsWith("delete"))) {
             String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
-            if(!StringUtils.hasText(tokenValue)) throw new IllegalArgumentException("Not Found Token");
+            if(!StringUtils.hasText(tokenValue)) {
+                ((HttpServletResponse) response).setStatus(400);
+                return;
+            }
 
             String token = jwtUtil.substringToken(tokenValue);
-            if(!jwtUtil.validateToken(token)) throw new IllegalArgumentException("Token Error");
+            String validateToken = jwtUtil.validateToken(token);
+            if(!validateToken.isEmpty()) {
+                if(validateToken.startsWith("Expired JWT token")) {
+                    ((HttpServletResponse) response).setStatus(401);
+                    return;
+                }
+                throw new IllegalArgumentException("Token Error");
+            }
 
             Claims info = jwtUtil.getUserInfoFromToken(token);
-            User user = userRepository.findByEmail(info.getSubject())
-                    .orElseThrow(() -> new NullPointerException("Not Found User"));
+            User user = userRepository.findByEmail(info.getSubject()).orElse(null);
+            if(user == null) throw new NullPointerException("Not Found User");
+
             UserRoleEnum role = info.get("role", UserRoleEnum.class);
+            if((uri.endsWith("update") || uri.endsWith("delete")) && role != UserRoleEnum.ADMIN) {
+                ((HttpServletResponse) response).setStatus(403);
+                return;
+            }
 
             request.setAttribute("user", user);
             request.setAttribute("role", role);

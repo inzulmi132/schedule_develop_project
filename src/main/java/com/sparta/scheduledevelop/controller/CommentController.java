@@ -34,14 +34,14 @@ public class CommentController {
         return commentService.findComments(scheduleId).stream().map(CommentResponseDto::new).toList();
     }
 
-    @PutMapping("/{commentId}")
+    @PutMapping("/{commentId}/update")
     public String updateComment(HttpServletRequest request, @PathVariable Long commentId, @Valid CommentRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Error";
         User user = (User) request.getAttribute("user");
         return commentService.updateComment(user, commentId, dto);
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/{commentId}/delete")
     public String deleteComment(HttpServletRequest request, @PathVariable Long commentId) {
         User user = (User) request.getAttribute("user");
         return commentService.deleteComment(user, commentId);

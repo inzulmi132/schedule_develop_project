@@ -35,6 +35,10 @@ public class UserController {
     @PostMapping("/login")
     public String login(UserRequestDto dto, HttpServletResponse response) {
         User user = userService.login(dto);
+        if(user == null) {
+            response.setStatus(401);
+            return "Login Failed";
+        }
         String token = jwtUtil.createToken(user.getEmail(), user.getRole());
         jwtUtil.addJwtToCookie(token, response);
         return "Login Success";
@@ -45,7 +49,7 @@ public class UserController {
         return userService.findAllUsers().stream().map(UserResponseDto::new).toList();
     }
 
-    @PutMapping("/edit")
+    @PutMapping("/update")
     public String updateUser(HttpServletRequest request, @Valid UserRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         User user = (User) request.getAttribute("user");
