@@ -33,6 +33,9 @@ public class User extends Timestamped{
     @ManyToMany(mappedBy = "authorList")
     private List<Schedule> authList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "commentCreator")
+    private List<Comment> commentList = new ArrayList<>();
+
     public User(String email, String username, String password, UserRoleEnum role) {
         this.email = email;
         this.username = username;
