@@ -20,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/schedules")
 public class ScheduleController {
     private final ScheduleService scheduleService;
+
     public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
@@ -29,6 +30,12 @@ public class ScheduleController {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         User user = (User) request.getAttribute("user");
         return scheduleService.createSchedule(user, dto);
+    }
+
+    @PostMapping("/{scheduleId}/{authorId}")
+    public String addScheduleAuthor(HttpServletRequest request, @PathVariable Long scheduleId, @PathVariable Long authorId) {
+        User user = (User) request.getAttribute("user");
+        return scheduleService.addScheduleAuthor(user, scheduleId, authorId);
     }
 
     @GetMapping
@@ -49,15 +56,19 @@ public class ScheduleController {
     @PutMapping("/{scheduleId}/edit")
     public String updateSchedule(HttpServletRequest request, @PathVariable Long scheduleId, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
+        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
+        if(role != UserRoleEnum.ADMIN) return "관리자만 일정을 수정할 수 있습니다.";
+
         User user = (User) request.getAttribute("user");
-        if(user.getRole() != UserRoleEnum.ADMIN) return "관리자만 일정을 수정할 수 있습니다.";
         return scheduleService.updateSchedule(user, scheduleId, dto);
     }
 
     @DeleteMapping("/{scheduleId}/delete")
     public String deleteSchedule(HttpServletRequest request, @PathVariable Long scheduleId) {
+        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
+        if(role != UserRoleEnum.ADMIN) return "관리자만 일정을 수정할 수 있습니다.";
+
         User user = (User) request.getAttribute("user");
-        if(user.getRole() != UserRoleEnum.ADMIN) return "관리자만 일정을 삭제할 수 있습니다.";
         return scheduleService.deleteSchedule(user, scheduleId);
     }
 

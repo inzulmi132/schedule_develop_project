@@ -4,6 +4,7 @@ import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.entity.Schedule;
 import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.repository.ScheduleRepository;
+import com.sparta.scheduledevelop.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,18 +12,37 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
-    public ScheduleService(ScheduleRepository scheduleRepository) {
+    private final UserRepository userRepository;
+
+    public ScheduleService(ScheduleRepository scheduleRepository, UserRepository userRepository) {
         this.scheduleRepository = scheduleRepository;
+        this.userRepository = userRepository;
     }
 
     public String createSchedule(User creator, ScheduleRequestDto dto) {
         Schedule schedule = new Schedule(dto, creator);
         scheduleRepository.save(schedule);
         return "Schedule created";
+    }
+
+    public String addScheduleAuthor(User user, Long scheduleId, Long authorId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+        if(!Objects.equals(user.getEmail(), schedule.getScheduleCreator().getEmail())) return "You are not allowed to add author this schedule";
+
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        schedule.getAuthorList().add(author);
+        scheduleRepository.save(schedule);
+        author.getScheduleList().add(schedule);
+        userRepository.save(author);
+        return "Author added";
     }
 
     public List<Schedule> findAllSchedules() {
@@ -64,6 +84,6 @@ public class ScheduleService {
     public boolean isAuthorized(User user, Schedule schedule) {
         User creator = schedule.getScheduleCreator();
         List<User> authorList = schedule.getAuthorList();
-        return authorList.contains(user) || creator.getId().equals(user.getId());
+        return authorList.contains(user) || Objects.equals(creator.getEmail(), user.getEmail());
     }
 }
