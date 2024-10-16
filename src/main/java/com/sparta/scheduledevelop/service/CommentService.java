@@ -50,6 +50,9 @@ public class CommentService {
 
         if(!Objects.equals(user.getId(), comment.getCommentCreator().getId())) return "You don't have permission to delete this text";
         commentRepository.delete(comment);
+        Schedule schedule = comment.getSchedule();
+        schedule.getCommentList().remove(comment);
+        scheduleRepository.save(schedule);
         return "Comment deleted";
     }
 }

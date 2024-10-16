@@ -77,6 +77,13 @@ public class ScheduleService {
         Schedule schedule = findById(scheduleId);
         if(!isAuthorized(user, schedule)) return "You are not allowed to delete this schedule";
 
+        User creator = schedule.getScheduleCreator();
+        creator.getScheduleList().remove(schedule);
+        userRepository.save(creator);
+        for(User author : schedule.getAuthorList()) {
+            author.getScheduleList().remove(schedule);
+            userRepository.save(author);
+        }
         scheduleRepository.deleteById(scheduleId);
         return "Schedule deleted";
     }
