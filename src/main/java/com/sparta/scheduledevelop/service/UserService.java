@@ -5,12 +5,12 @@ import com.sparta.scheduledevelop.dto.UserRequestDto;
 import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.repository.UserRepository;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
-@Controller
+@Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
