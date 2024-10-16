@@ -25,12 +25,12 @@ public class Schedule extends Timestamped {
     @Column(nullable = false)
     private String weather;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
-    private List<Comment> commentList = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User scheduleCreator;
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
+    private List<Comment> commentList = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "userSchedule",
