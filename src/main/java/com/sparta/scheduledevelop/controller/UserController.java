@@ -26,13 +26,13 @@ public class UserController {
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/signup")
+    @GetMapping("/signup")
     public String signup(@Valid UserRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         return userService.signup(dto);
     }
 
-    @PostMapping("/login")
+    @GetMapping("/login")
     public String login(UserRequestDto dto, HttpServletResponse response) {
         User user = userService.login(dto);
         if(user == null) {
@@ -49,14 +49,14 @@ public class UserController {
         return userService.findAllUsers().stream().map(UserResponseDto::new).toList();
     }
 
-    @PutMapping("/update")
+    @PutMapping
     public String updateUser(HttpServletRequest request, @Valid UserRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         User user = (User) request.getAttribute("user");
         return userService.updateUser(user, dto);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public String deleteUser(HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
         return userService.deleteUser(user);

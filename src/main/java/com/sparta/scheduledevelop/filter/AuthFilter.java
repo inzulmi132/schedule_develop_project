@@ -1,7 +1,6 @@
 package com.sparta.scheduledevelop.filter;
 
 import com.sparta.scheduledevelop.entity.User;
-import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.jwt.JwtUtil;
 import com.sparta.scheduledevelop.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -31,9 +30,11 @@ public class AuthFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String uri = httpServletRequest.getRequestURI();
+        String mapping = httpServletRequest.getMethod();
 
         // 로그인이 필요한 경우.
-        if(StringUtils.hasText(uri) && (uri.endsWith("write") || uri.endsWith("update") || uri.endsWith("delete"))) {
+        // POST, PUT, DELETE 매핑의 경우 확인.
+        if(StringUtils.hasText(uri) && (mapping.equals("POST" ) || mapping.equals("PUT") || mapping.equals("DELETE"))) {
             String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
             if(!StringUtils.hasText(tokenValue)) {
                 ((HttpServletResponse) response).setStatus(400);
@@ -53,7 +54,8 @@ public class AuthFilter implements Filter {
             Claims info = jwtUtil.getUserInfoFromToken(token);
             User user = userRepository.findByEmail(info.getSubject()).orElse(null);
             if(user == null) throw new NullPointerException("Not Found User");
-            UserRoleEnum role = info.get("role", UserRoleEnum.class);
+            String role = info.get(JwtUtil.AUTHORIZATION_KEY, String.class);
+            System.out.println(role);
 
             request.setAttribute("user", user);
             request.setAttribute("role", role);

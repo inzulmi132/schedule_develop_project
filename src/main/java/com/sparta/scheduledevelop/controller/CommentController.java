@@ -22,7 +22,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/{scheduleId}/write")
+    @PostMapping("/{scheduleId}")
     public String createComment(HttpServletRequest request, @PathVariable Long scheduleId, @Valid CommentRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Error";
         User user = (User) request.getAttribute("user");
@@ -34,14 +34,14 @@ public class CommentController {
         return commentService.findComments(scheduleId).stream().map(CommentResponseDto::new).toList();
     }
 
-    @PutMapping("/{commentId}/update")
+    @PutMapping("/{commentId}")
     public String updateComment(HttpServletRequest request, @PathVariable Long commentId, @Valid CommentRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Error";
         User user = (User) request.getAttribute("user");
         return commentService.updateComment(user, commentId, dto);
     }
 
-    @DeleteMapping("/{commentId}/delete")
+    @DeleteMapping("/{commentId}")
     public String deleteComment(HttpServletRequest request, @PathVariable Long commentId) {
         User user = (User) request.getAttribute("user");
         return commentService.deleteComment(user, commentId);

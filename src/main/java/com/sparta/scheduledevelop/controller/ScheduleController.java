@@ -5,7 +5,6 @@ import com.sparta.scheduledevelop.client.WeatherResponse;
 import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.entity.User;
-import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +31,7 @@ public class ScheduleController {
         this.weatherClient = weatherClient;
     }
 
-    @PostMapping("/write")
+    @PostMapping
     public String createSchedule(HttpServletRequest request, @Valid ScheduleRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         User user = (User) request.getAttribute("user");
@@ -69,29 +68,29 @@ public class ScheduleController {
         return scheduleService.findAllSchedulesByPage(page-1, size).map(ScheduleResponseDto::new);
     }
 
-    @PutMapping("/{scheduleId}/update")
+    @PutMapping("/{scheduleId}")
     public String updateSchedule(HttpServletRequest request, @PathVariable Long scheduleId, @Valid ScheduleRequestDto dto, BindingResult bindingResult, HttpServletResponse response) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
-        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
-        if(role != UserRoleEnum.ADMIN) {
+        String role = (String) request.getAttribute("role");
+        if(!Objects.equals(role, "ADMIN")) {
             response.setStatus(403);
             return "관리자만 일정을 수정할 수 있습니다.";
         }
 
         User user = (User) request.getAttribute("user");
-        return scheduleService.updateSchedule(user, scheduleId, dto);
+        return scheduleService.updateSchedule(user, role, scheduleId, dto);
     }
 
-    @DeleteMapping("/{scheduleId}/delete")
+    @DeleteMapping("/{scheduleId}")
     public String deleteSchedule(HttpServletRequest request, @PathVariable Long scheduleId, HttpServletResponse response) {
-        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
-        if(role != UserRoleEnum.ADMIN) {
+        String role = (String) request.getAttribute("role");
+        if(!Objects.equals(role, "ADMIN")) {
             response.setStatus(403);
             return "관리자만 일정을 삭제할 수 있습니다.";
         }
 
         User user = (User) request.getAttribute("user");
-        return scheduleService.deleteSchedule(user, scheduleId);
+        return scheduleService.deleteSchedule(user, role, scheduleId);
     }
 
     public boolean validationCheck(List<FieldError> fieldErrors) {

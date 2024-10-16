@@ -63,9 +63,10 @@ public class ScheduleService {
         return scheduleRepository.findAll(pageable);
     }
 
-    public String updateSchedule(User user, Long scheduleId, ScheduleRequestDto dto) {
+    public String updateSchedule(User user, String role, Long scheduleId, ScheduleRequestDto dto) {
         Schedule schedule = findById(scheduleId);
-        if(!isAuthorized(user, schedule)) return "You are not allowed to update this schedule";
+        if(!isAuthorized(user, schedule) && !Objects.equals(role, "ADMIN"))
+            return "You are not allowed to update this schedule";
 
         schedule.setTitle(dto.getTitle());
         schedule.setTodo(dto.getTodo());
@@ -73,9 +74,10 @@ public class ScheduleService {
         return "Schedule updated";
     }
 
-    public String deleteSchedule(User user, Long scheduleId) {
+    public String deleteSchedule(User user, String role, Long scheduleId) {
         Schedule schedule = findById(scheduleId);
-        if(!isAuthorized(user, schedule)) return "You are not allowed to delete this schedule";
+        if(!isAuthorized(user, schedule) && !Objects.equals(role, "ADMIN"))
+            return "You are not allowed to delete this schedule";
 
         User creator = schedule.getScheduleCreator();
         creator.getScheduleList().remove(schedule);
