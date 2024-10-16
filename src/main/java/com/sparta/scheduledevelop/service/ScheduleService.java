@@ -43,8 +43,8 @@ public class ScheduleService {
             return "Author not found";
 
         schedule.getAuthorList().add(author);
-        scheduleRepository.save(schedule);
         author.getScheduleList().add(schedule);
+        scheduleRepository.save(schedule);
         userRepository.save(author);
 
         return "Author added";
@@ -66,7 +66,7 @@ public class ScheduleService {
 
     public String updateSchedule(User user, Long scheduleId, ScheduleRequestDto dto) {
         Schedule schedule = findById(scheduleId);
-        if(isAuthorized(user, schedule)) return "You are not allowed to update this schedule";
+        if(!isAuthorized(user, schedule)) return "You are not allowed to update this schedule";
 
         schedule.setTitle(dto.getTitle());
         schedule.setTodo(dto.getTodo());
@@ -76,7 +76,8 @@ public class ScheduleService {
 
     public String deleteSchedule(User user, Long scheduleId) {
         Schedule schedule = findById(scheduleId);
-        if(isAuthorized(user, schedule)) return "You are not allowed to delete this schedule";
+        if(!isAuthorized(user, schedule)) return "You are not allowed to delete this schedule";
+
         scheduleRepository.deleteById(scheduleId);
         return "Schedule deleted";
     }
