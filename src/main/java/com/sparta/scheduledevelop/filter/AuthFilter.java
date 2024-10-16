@@ -53,12 +53,7 @@ public class AuthFilter implements Filter {
             Claims info = jwtUtil.getUserInfoFromToken(token);
             User user = userRepository.findByEmail(info.getSubject()).orElse(null);
             if(user == null) throw new NullPointerException("Not Found User");
-
             UserRoleEnum role = info.get("role", UserRoleEnum.class);
-            if((uri.endsWith("update") || uri.endsWith("delete")) && role != UserRoleEnum.ADMIN) {
-                ((HttpServletResponse) response).setStatus(403);
-                return;
-            }
 
             request.setAttribute("user", user);
             request.setAttribute("role", role);
