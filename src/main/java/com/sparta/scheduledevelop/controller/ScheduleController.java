@@ -5,6 +5,7 @@ import com.sparta.scheduledevelop.client.WeatherResponse;
 import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.entity.User;
+import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -71,25 +72,15 @@ public class ScheduleController {
     @PutMapping("/{scheduleId}")
     public String updateSchedule(HttpServletRequest request, @PathVariable Long scheduleId, @Valid ScheduleRequestDto dto, BindingResult bindingResult, HttpServletResponse response) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
-        String role = (String) request.getAttribute("role");
-        if(!Objects.equals(role, "ADMIN")) {
-            response.setStatus(403);
-            return "관리자만 일정을 수정할 수 있습니다.";
-        }
-
         User user = (User) request.getAttribute("user");
+        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
         return scheduleService.updateSchedule(user, role, scheduleId, dto);
     }
 
     @DeleteMapping("/{scheduleId}")
     public String deleteSchedule(HttpServletRequest request, @PathVariable Long scheduleId, HttpServletResponse response) {
-        String role = (String) request.getAttribute("role");
-        if(!Objects.equals(role, "ADMIN")) {
-            response.setStatus(403);
-            return "관리자만 일정을 삭제할 수 있습니다.";
-        }
-
         User user = (User) request.getAttribute("user");
+        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
         return scheduleService.deleteSchedule(user, role, scheduleId);
     }
 

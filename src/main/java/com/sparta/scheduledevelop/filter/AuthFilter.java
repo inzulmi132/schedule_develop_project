@@ -1,6 +1,7 @@
 package com.sparta.scheduledevelop.filter;
 
 import com.sparta.scheduledevelop.entity.User;
+import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.jwt.JwtUtil;
 import com.sparta.scheduledevelop.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -54,8 +55,7 @@ public class AuthFilter implements Filter {
             Claims info = jwtUtil.getUserInfoFromToken(token);
             User user = userRepository.findByEmail(info.getSubject()).orElse(null);
             if(user == null) throw new NullPointerException("Not Found User");
-            String role = info.get(JwtUtil.AUTHORIZATION_KEY, String.class);
-            System.out.println(role);
+            UserRoleEnum role = UserRoleEnum.valueOf(info.get(JwtUtil.AUTHORIZATION_KEY, String.class));
 
             request.setAttribute("user", user);
             request.setAttribute("role", role);
