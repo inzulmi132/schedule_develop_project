@@ -8,6 +8,7 @@ import com.sparta.scheduledevelop.repository.CommentRepository;
 import com.sparta.scheduledevelop.repository.ScheduleRepository;
 import com.sparta.scheduledevelop.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +25,7 @@ public class CommentService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public String createComment(User creator, Long scheduleId, CommentRequestDto dto) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
@@ -31,8 +33,6 @@ public class CommentService {
         Comment comment = new Comment(dto.getText(), creator, schedule);
         schedule.getCommentList().add(comment);
         commentRepository.save(comment);
-        scheduleRepository.save(schedule);
-        userRepository.save(creator);
         return "Comment created";
     }
 
@@ -40,6 +40,7 @@ public class CommentService {
         return commentRepository.findAllByScheduleId(scheduleId);
     }
 
+    @Transactional
     public String updateComment(User user, Long commentId, CommentRequestDto dto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
@@ -47,10 +48,10 @@ public class CommentService {
         if(!Objects.equals(user.getId(), comment.getCommentCreator().getId()))
             return "You don't have permission to update this text";
         comment.setText(dto.getText());
-        commentRepository.save(comment);
         return "Comment updated";
     }
 
+    @Transactional
     public String deleteComment(User user, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
@@ -61,9 +62,7 @@ public class CommentService {
 
         Schedule schedule = comment.getSchedule();
         schedule.getCommentList().remove(comment);
-        scheduleRepository.save(schedule);
         user.getCommentList().remove(comment);
-        userRepository.save(user);
 
         return "Comment deleted";
     }

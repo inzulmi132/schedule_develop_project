@@ -6,6 +6,7 @@ import com.sparta.scheduledevelop.entity.User;
 import com.sparta.scheduledevelop.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -56,10 +57,10 @@ public class UserService {
         return userRepository.findAllByOrderByModifiedAtDesc();
     }
 
+    @Transactional
     public String updateUser(User user, UserRequestDto dto) {
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        userRepository.save(user);
         return "Update Success";
     }
 

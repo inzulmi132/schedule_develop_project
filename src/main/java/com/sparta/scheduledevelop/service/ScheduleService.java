@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +31,7 @@ public class ScheduleService {
         this.weatherClient = weatherClient;
     }
 
+    @Transactional
     public String createSchedule(User creator, ScheduleRequestDto dto) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("MM-dd"));
         String weather = weatherClient.getWeather()
@@ -42,11 +44,11 @@ public class ScheduleService {
 
         Schedule schedule = new Schedule(creator, dto, weather);
         scheduleRepository.save(schedule);
-        userRepository.save(creator);
         return "Schedule created";
     }
 
     // 일정의 작성자가 담당 유저 배치
+    @Transactional
     public String addScheduleAuthor(User user, Long scheduleId, Long authorId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
         if(schedule == null) return "Schedule not found";
@@ -56,9 +58,7 @@ public class ScheduleService {
         if(author == null) return "Author not found";
 
         schedule.getAuthorList().add(author);
-        scheduleRepository.save(schedule);
         author.getAuthList().add(schedule);
-        userRepository.save(author);
 
         return "Author added";
     }
@@ -77,6 +77,7 @@ public class ScheduleService {
         return scheduleRepository.findAll(pageable);
     }
 
+    @Transactional
     public String updateSchedule(User user, UserRoleEnum role, Long scheduleId, ScheduleRequestDto dto) {
         Schedule schedule = findById(scheduleId);
         if(!isAuthorized(user, role, schedule))
@@ -84,10 +85,10 @@ public class ScheduleService {
 
         schedule.setTitle(dto.getTitle());
         schedule.setTodo(dto.getTodo());
-        scheduleRepository.save(schedule);
         return "Schedule updated";
     }
 
+    @Transactional
     public String deleteSchedule(User user, UserRoleEnum role, Long scheduleId) {
         Schedule schedule = findById(scheduleId);
         if(!isAuthorized(user, role, schedule))
@@ -95,11 +96,7 @@ public class ScheduleService {
 
         User creator = schedule.getScheduleCreator();
         creator.getScheduleList().remove(schedule);
-        userRepository.save(creator);
-        for(User author : schedule.getAuthorList()) {
-            author.getScheduleList().remove(schedule);
-            userRepository.save(author);
-        }
+        for(User author : schedule.getAuthorList()) author.getScheduleList().remove(schedule);
         scheduleRepository.deleteById(scheduleId);
         return "Schedule deleted";
     }
