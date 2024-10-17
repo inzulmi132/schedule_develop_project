@@ -33,8 +33,7 @@ public class AuthFilter implements Filter {
         String uri = httpServletRequest.getRequestURI();
         String mapping = httpServletRequest.getMethod();
 
-        // 로그인이 필요한 경우.
-        // POST, PUT, DELETE 매핑의 경우 확인.
+        // 로그인이 필요한 경우 => POST, PUT, DELETE 매핑의 경우
         if(StringUtils.hasText(uri) && (mapping.equals("POST" ) || mapping.equals("PUT") || mapping.equals("DELETE"))) {
             String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
             if(!StringUtils.hasText(tokenValue)) {
@@ -53,9 +52,13 @@ public class AuthFilter implements Filter {
             }
 
             Claims info = jwtUtil.getUserInfoFromToken(token);
+
             User user = userRepository.findByEmail(info.getSubject()).orElse(null);
             if(user == null) throw new NullPointerException("Not Found User");
-            UserRoleEnum role = UserRoleEnum.valueOf(info.get(JwtUtil.AUTHORIZATION_KEY, String.class));
+
+            String userRole = info.get(JwtUtil.AUTHORIZATION_KEY, String.class);
+            if(userRole == null) throw new NullPointerException("Not Found UserRole");
+            UserRoleEnum role = UserRoleEnum.valueOf(userRole);
 
             request.setAttribute("user", user);
             request.setAttribute("role", role);
