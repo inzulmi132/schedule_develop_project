@@ -33,7 +33,7 @@ public class AuthFilter implements Filter {
         String uri = httpServletRequest.getRequestURI();
         String mapping = httpServletRequest.getMethod();
 
-        // 로그인이 필요한 경우 => POST, PUT, DELETE 매핑의 경우
+        // POST, PUT, DELETE 매핑의 경우 토큰 확인
         if(StringUtils.hasText(uri) && (mapping.equals("POST" ) || mapping.equals("PUT") || mapping.equals("DELETE"))) {
             String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
             if(!StringUtils.hasText(tokenValue)) {

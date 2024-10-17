@@ -26,12 +26,14 @@ public class UserController {
         this.jwtUtil = jwtUtil;
     }
 
+    // filter 의 인가 여부 구분을 위해서 GetMapping
     @GetMapping("/signup")
     public String signup(@Valid UserRequestDto dto, BindingResult bindingResult) {
         if(validationCheck(bindingResult.getFieldErrors())) return "Validation Exception";
         return userService.signup(dto);
     }
 
+    // filter 의 인가 여부 구분을 위해서 GetMapping
     @GetMapping("/login")
     public String login(UserRequestDto dto, HttpServletResponse response) {
         User user = userService.login(dto);
@@ -39,6 +41,7 @@ public class UserController {
             response.setStatus(401);
             return "Login Failed";
         }
+        // 로그인한 유저의 정보로 토큰 생성
         String token = jwtUtil.createToken(user.getEmail(), user.getRole());
         jwtUtil.addJwtToCookie(token, response);
         return "Login Success";

@@ -45,6 +45,7 @@ public class UserService {
         String password = dto.getPassword();
 
         User user = userRepository.findByEmail(email).orElse(null);
+        // 이메일 또는 비밀번호가 틀리면 null 반환
         if(user == null) return null;
         if(!passwordEncoder.matches(password, user.getPassword())) return null;
 

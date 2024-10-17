@@ -1,5 +1,7 @@
 package com.sparta.scheduledevelop.service;
 
+import com.sparta.scheduledevelop.client.WeatherClient;
+import com.sparta.scheduledevelop.client.WeatherResponse;
 import com.sparta.scheduledevelop.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.entity.Schedule;
 import com.sparta.scheduledevelop.entity.User;
@@ -12,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,32 +23,41 @@ import java.util.Objects;
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
-    public ScheduleService(ScheduleRepository scheduleRepository, UserRepository userRepository) {
+    private final WeatherClient weatherClient;
+    public ScheduleService(ScheduleRepository scheduleRepository, UserRepository userRepository, WeatherClient weatherClient) {
         this.scheduleRepository = scheduleRepository;
         this.userRepository = userRepository;
+        this.weatherClient = weatherClient;
     }
 
-    public String createSchedule(User creator, ScheduleRequestDto dto, String weather) {
+    public String createSchedule(User creator, ScheduleRequestDto dto) {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("MM-dd"));
+        String weather = weatherClient.getWeather()
+                .stream()
+                .filter(weatherResponse -> Objects.equals(weatherResponse.getDate(), today))
+                .map(WeatherResponse::getWeather)
+                .findFirst()
+                .orElse(null);
+        if(weather == null) return "Weather Not Found";
+
         Schedule schedule = new Schedule(creator, dto, weather);
         scheduleRepository.save(schedule);
+        userRepository.save(creator);
         return "Schedule created";
     }
 
+    // 일정의 작성자가 담당 유저 배치
     public String addScheduleAuthor(User user, Long scheduleId, Long authorId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
-        if(schedule == null)
-            return "Schedule not found";
-
+        if(schedule == null) return "Schedule not found";
         if(!Objects.equals(user.getEmail(), schedule.getScheduleCreator().getEmail()))
             return "You are not allowed to add author this schedule";
-
         User author = userRepository.findById(authorId).orElse(null);
-        if(author == null)
-            return "Author not found";
+        if(author == null) return "Author not found";
 
         schedule.getAuthorList().add(author);
-        author.getScheduleList().add(schedule);
         scheduleRepository.save(schedule);
+        author.getAuthList().add(schedule);
         userRepository.save(author);
 
         return "Author added";
@@ -66,7 +79,7 @@ public class ScheduleService {
 
     public String updateSchedule(User user, UserRoleEnum role, Long scheduleId, ScheduleRequestDto dto) {
         Schedule schedule = findById(scheduleId);
-        if(!isAuthorized(user, schedule) && role != UserRoleEnum.ADMIN)
+        if(!isAuthorized(user, role, schedule))
             return "You are not allowed to update this schedule";
 
         schedule.setTitle(dto.getTitle());
@@ -77,7 +90,7 @@ public class ScheduleService {
 
     public String deleteSchedule(User user, UserRoleEnum role, Long scheduleId) {
         Schedule schedule = findById(scheduleId);
-        if(!isAuthorized(user, schedule) && role != UserRoleEnum.ADMIN)
+        if(!isAuthorized(user, role, schedule))
             return "You are not allowed to delete this schedule";
 
         User creator = schedule.getScheduleCreator();
@@ -96,9 +109,10 @@ public class ScheduleService {
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
     }
 
-    public boolean isAuthorized(User user, Schedule schedule) {
+    // 수정 및 삭제 시 권한을 확인하는 메서드
+    public boolean isAuthorized(User user, UserRoleEnum role, Schedule schedule) {
         User creator = schedule.getScheduleCreator();
         List<User> authorList = schedule.getAuthorList();
-        return authorList.contains(user) || Objects.equals(creator.getEmail(), user.getEmail());
+        return Objects.equals(creator.getEmail(), user.getEmail()) || authorList.contains(user) || role == UserRoleEnum.ADMIN;
     }
 }

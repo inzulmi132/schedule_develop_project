@@ -43,5 +43,8 @@ public class Schedule extends Timestamped {
         this.title = dto.getTitle();
         this.todo = dto.getTodo();
         this.weather = weather;
+
+        // 생성할 때 작성자의 일정 리스트에 추가
+        scheduleCreator.getScheduleList().add(this);
     }
 }
