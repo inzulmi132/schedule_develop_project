@@ -7,14 +7,12 @@ import com.sparta.scheduledevelop.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @Table(name = "schedules")
 public class Schedule extends Timestamped {
@@ -46,8 +44,10 @@ public class Schedule extends Timestamped {
         this.title = dto.getTitle();
         this.todo = dto.getTodo();
         this.weather = weather;
+    }
 
-        // 생성할 때 작성자의 일정 리스트에 추가
-        scheduleCreator.getScheduleList().add(this);
+    public void update(String title, String todo) {
+        this.title = title;
+        this.todo = todo;
     }
 }

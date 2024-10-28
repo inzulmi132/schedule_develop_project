@@ -4,10 +4,11 @@ import com.sparta.scheduledevelop.client.WeatherClient;
 import com.sparta.scheduledevelop.client.WeatherResponse;
 import com.sparta.scheduledevelop.domain.schedule.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.domain.schedule.entity.Schedule;
+import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleRepository;
 import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.user.entity.UserRoleEnum;
-import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleRepository;
 import com.sparta.scheduledevelop.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,15 +22,11 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
     private final WeatherClient weatherClient;
-    public ScheduleService(ScheduleRepository scheduleRepository, UserRepository userRepository, WeatherClient weatherClient) {
-        this.scheduleRepository = scheduleRepository;
-        this.userRepository = userRepository;
-        this.weatherClient = weatherClient;
-    }
 
     @Transactional
     public String createSchedule(User creator, ScheduleRequestDto dto) {
@@ -40,8 +37,6 @@ public class ScheduleService {
                 .map(WeatherResponse::getWeather)
                 .findFirst()
                 .orElse(null);
-        if(weather == null) return "Weather Not Found";
-
         Schedule schedule = new Schedule(creator, dto, weather);
         scheduleRepository.save(schedule);
         return "Schedule created";
@@ -83,8 +78,7 @@ public class ScheduleService {
         if(!isAuthorized(user, role, schedule))
             return "You are not allowed to update this schedule";
 
-        schedule.setTitle(dto.getTitle());
-        schedule.setTodo(dto.getTodo());
+        schedule.update(dto.getTitle(), dto.getTodo());
         return "Schedule updated";
     }
 
