@@ -33,36 +33,43 @@ public class AuthFilter implements Filter {
         String uri = httpServletRequest.getRequestURI();
         String mapping = httpServletRequest.getMethod();
 
-        // POST, PUT, DELETE 매핑의 경우 토큰 확인
-        if(StringUtils.hasText(uri) && (mapping.equals("POST" ) || mapping.equals("PUT") || mapping.equals("DELETE"))) {
-            String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
-            if(!StringUtils.hasText(tokenValue)) {
-                ((HttpServletResponse) response).setStatus(400);
+        if(StringUtils.hasText(uri) && (uri.endsWith("signup") || uri.endsWith("login"))) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        if(mapping.equals("GET")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
+        if(!StringUtils.hasText(tokenValue)) {
+            ((HttpServletResponse) response).setStatus(400);
+            return;
+        }
+
+        String token = jwtUtil.substringToken(tokenValue);
+        String validateToken = jwtUtil.validateToken(token);
+        if(!validateToken.isEmpty()) {
+            if(validateToken.startsWith("Expired JWT token")) {
+                ((HttpServletResponse) response).setStatus(401);
                 return;
             }
-
-            String token = jwtUtil.substringToken(tokenValue);
-            String validateToken = jwtUtil.validateToken(token);
-            if(!validateToken.isEmpty()) {
-                if(validateToken.startsWith("Expired JWT token")) {
-                    ((HttpServletResponse) response).setStatus(401);
-                    return;
-                }
-                throw new IllegalArgumentException("Token Error");
-            }
-
-            Claims info = jwtUtil.getUserInfoFromToken(token);
-
-            User user = userRepository.findByEmail(info.getSubject()).orElse(null);
-            if(user == null) throw new NullPointerException("Not Found User");
-
-            String userRole = info.get(JwtUtil.AUTHORIZATION_KEY, String.class);
-            if(userRole == null) throw new NullPointerException("Not Found UserRole");
-            UserRoleEnum role = UserRoleEnum.valueOf(userRole);
-
-            request.setAttribute("user", user);
-            request.setAttribute("role", role);
+            throw new IllegalArgumentException("Token Error");
         }
+
+        Claims info = jwtUtil.getUserInfoFromToken(token);
+
+        User user = userRepository.findByEmail(info.getSubject()).orElse(null);
+        if(user == null) throw new NullPointerException("Not Found User");
+
+        String userRole = info.get(JwtUtil.AUTHORIZATION_KEY, String.class);
+        if(userRole == null) throw new NullPointerException("Not Found UserRole");
+        UserRoleEnum role = UserRoleEnum.valueOf(userRole);
+
+        request.setAttribute("user", user);
+        request.setAttribute("role", role);
         chain.doFilter(request, response);
     }
 }

@@ -1,7 +1,6 @@
 package com.sparta.scheduledevelop.domain.schedule.service;
 
-import com.sparta.scheduledevelop.client.WeatherClient;
-import com.sparta.scheduledevelop.client.WeatherResponse;
+import com.sparta.scheduledevelop.client.WeatherService;
 import com.sparta.scheduledevelop.domain.schedule.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.domain.schedule.entity.Schedule;
 import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleRepository;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,17 +23,11 @@ import java.util.Objects;
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
-    private final WeatherClient weatherClient;
+    private final WeatherService weatherService;
 
     @Transactional
     public String createSchedule(User creator, ScheduleRequestDto dto) {
-        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("MM-dd"));
-        String weather = weatherClient.getWeather()
-                .stream()
-                .filter(weatherResponse -> Objects.equals(weatherResponse.getDate(), today))
-                .map(WeatherResponse::getWeather)
-                .findFirst()
-                .orElse(null);
+        String weather = weatherService.getWeather();
         Schedule schedule = new Schedule(creator, dto, weather);
         scheduleRepository.save(schedule);
         return "Schedule created";
