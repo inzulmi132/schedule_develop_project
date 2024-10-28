@@ -6,6 +6,7 @@ import com.sparta.scheduledevelop.domain.comment.repository.CommentRepository;
 import com.sparta.scheduledevelop.domain.schedule.entity.Schedule;
 import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleRepository;
 import com.sparta.scheduledevelop.domain.user.entity.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,14 +14,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
     private final ScheduleRepository scheduleRepository;
-
-    public CommentService(CommentRepository commentRepository, ScheduleRepository scheduleRepository) {
-        this.commentRepository = commentRepository;
-        this.scheduleRepository = scheduleRepository;
-    }
 
     @Transactional
     public String createComment(User creator, Long scheduleId, CommentRequestDto dto) {
@@ -44,7 +41,7 @@ public class CommentService {
 
         if(!Objects.equals(user.getId(), comment.getCommentCreator().getId()))
             return "You don't have permission to update this text";
-        comment.setText(dto.getText());
+        comment.update(dto.getText());
         return "Comment updated";
     }
 

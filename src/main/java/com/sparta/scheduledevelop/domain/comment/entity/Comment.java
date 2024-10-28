@@ -6,11 +6,9 @@ import com.sparta.scheduledevelop.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @Table(name = "comments")
 public class Comment extends Timestamped {
@@ -32,8 +30,9 @@ public class Comment extends Timestamped {
         this.text = text;
         this.commentCreator = commentCreator;
         this.schedule = schedule;
+    }
 
-        commentCreator.getCommentList().add(this);
-        schedule.getCommentList().add(this);
+    public void update(String text) {
+        this.text = text;
     }
 }
