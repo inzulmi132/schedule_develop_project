@@ -5,26 +5,24 @@ import com.sparta.scheduledevelop.domain.user.dto.UserRequestDto;
 import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.user.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
     public String signup(UserRequestDto dto) {
         String email = dto.getEmail();
-        String username = dto.getUsername();
+        String username = dto.getName();
         String password = passwordEncoder.encode(dto.getPassword());
 
         User checkUser = userRepository.findByEmail(email).orElse(null);
@@ -59,8 +57,11 @@ public class UserService {
 
     @Transactional
     public String updateUser(User user, UserRequestDto dto) {
-        user.setUsername(dto.getUsername());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        User targetUser = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 유저입니다."));
+        String name = dto.getName();
+        String password = passwordEncoder.encode(dto.getPassword());
+        targetUser.update(name, password);
         return "Update Success";
     }
 
