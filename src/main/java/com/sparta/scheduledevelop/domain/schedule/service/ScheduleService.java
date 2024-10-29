@@ -10,6 +10,8 @@ import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleRepository;
 import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.user.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.domain.user.repository.UserRepository;
+import com.sparta.scheduledevelop.exception.CustomErrorCode;
+import com.sparta.scheduledevelop.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Service
@@ -40,11 +41,11 @@ public class ScheduleService {
     // 일정의 작성자가 담당 유저 배치
     public void addScheduleAuthor(User user, Long scheduleId, Long authorId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new NoSuchElementException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
         if(!Objects.equals(user.getId(), schedule.getScheduleCreator().getId()))
-            throw new RuntimeException("You are not allowed to add author this schedule");
+            throw new CustomException(CustomErrorCode.INVALID_ADD_AUTHOR);
         User author = userRepository.findById(authorId)
-                .orElseThrow(() -> new NoSuchElementException("Author not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 
         ScheduleAuthor scheduleAuthor = new ScheduleAuthor(schedule, author);
         scheduleAuthorRepository.save(scheduleAuthor);
@@ -56,7 +57,7 @@ public class ScheduleService {
 
     public ScheduleResponseDto findScheduleById(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
         return new ScheduleResponseDto(schedule);
     }
 
@@ -69,9 +70,9 @@ public class ScheduleService {
     @Transactional
     public ScheduleResponseDto updateSchedule(User user, UserRoleEnum role, Long scheduleId, ScheduleRequestDto requestDto) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
-        if(!isAuthorized(user, role, schedule)) {
-            throw new RuntimeException("You are not allowed to update this schedule");
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        if(isNotAuthorized(user, role, schedule)) {
+            throw new CustomException(CustomErrorCode.INVALID_UPDATE);
         }
         schedule.update(requestDto.getTitle(), requestDto.getTodo());
         return new ScheduleResponseDto(scheduleRepository.saveAndFlush(schedule));
@@ -80,18 +81,26 @@ public class ScheduleService {
     @Transactional
     public void deleteSchedule(User user, UserRoleEnum role, Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
-        if(!isAuthorized(user, role, schedule)) {
-            throw new RuntimeException("You are not allowed to delete this schedule");
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        if(isNotAuthorized(user, role, schedule)) {
+            throw new CustomException(CustomErrorCode.INVALID_DELETE);
         }
         scheduleAuthorRepository.deleteAll(schedule.getAuthorList());
         scheduleRepository.deleteById(scheduleId);
     }
 
     // 수정 및 삭제 시 권한을 확인하는 메서드
-    public boolean isAuthorized(User user, UserRoleEnum role, Schedule schedule) {
+    public boolean isNotAuthorized(User user, UserRoleEnum role, Schedule schedule) {
+        if(role == UserRoleEnum.ADMIN) {
+            return false;
+        }
+
         User creator = schedule.getScheduleCreator();
+        if(Objects.equals(creator.getId(), user.getId())) {
+            return false;
+        }
+
         List<User> authorList = schedule.getAuthorList().stream().map(ScheduleAuthor::getAuthor).toList();
-        return Objects.equals(creator.getEmail(), user.getEmail()) || authorList.contains(user) || role == UserRoleEnum.ADMIN;
+        return !authorList.contains(user);
     }
 }

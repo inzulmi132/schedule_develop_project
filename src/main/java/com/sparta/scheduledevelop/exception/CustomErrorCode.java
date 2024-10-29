@@ -27,7 +27,10 @@ public enum CustomErrorCode {
     TOKEN_INVALID(HttpStatus.BAD_REQUEST, "잘못된 JWT 토큰입니다."),
 
     // other error
-    ADMIN_PASSWORD_INCORRECT(HttpStatus.UNAUTHORIZED, "관리자 암호가 틀렸습니다.")
+    ADMIN_PASSWORD_INCORRECT(HttpStatus.UNAUTHORIZED, "관리자 암호가 틀렸습니다."),
+    INVALID_ADD_AUTHOR(HttpStatus.UNAUTHORIZED, "담당 유저를 배치할 권한이 없습니다."),
+    INVALID_UPDATE(HttpStatus.UNAUTHORIZED, "수정할 권한이 없습니다."),
+    INVALID_DELETE(HttpStatus.UNAUTHORIZED, "삭제할 권한이 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

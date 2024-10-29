@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,10 +26,8 @@ public class ScheduleController {
     @PostMapping
     public ResponseEntity<ScheduleResponseDto> createSchedule(
             HttpServletRequest request,
-            @Valid ScheduleRequestDto requestDto,
-            BindingResult bindingResult
+            @Valid ScheduleRequestDto requestDto
     ) {
-        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
         User user = (User) request.getAttribute("user");
         ScheduleResponseDto responseDto = scheduleService.createSchedule(user, requestDto);
         return ResponseEntity
@@ -75,10 +71,8 @@ public class ScheduleController {
     public ResponseEntity<ScheduleResponseDto> updateSchedule(
             HttpServletRequest request,
             @PathVariable Long scheduleId,
-            @Valid ScheduleRequestDto dto,
-            BindingResult bindingResult
+            @Valid ScheduleRequestDto dto
     ) {
-        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
         User user = (User) request.getAttribute("user");
         UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
         ScheduleResponseDto responseDto = scheduleService.updateSchedule(user, role, scheduleId, dto);
@@ -98,12 +92,5 @@ public class ScheduleController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body("Schedule deleted successfully");
-    }
-
-    public boolean validationCheck(List<FieldError> fieldErrors) {
-        if(fieldErrors.isEmpty()) return false;
-        for(FieldError fieldError : fieldErrors)
-            log.error("{} 필드 : {}", fieldError.getField(), fieldError.getDefaultMessage());
-        return true;
     }
 }
