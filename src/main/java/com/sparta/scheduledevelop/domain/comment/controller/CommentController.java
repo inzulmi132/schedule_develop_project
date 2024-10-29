@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -22,42 +24,51 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public String createComment(HttpServletRequest request,
-                                @PathVariable Long scheduleId,
-                                @Valid CommentRequestDto dto,
-                                BindingResult bindingResult
+    public ResponseEntity<CommentResponseDto> createComment(HttpServletRequest request,
+                                        @PathVariable Long scheduleId,
+                                        @Valid CommentRequestDto requestDto,
+                                        BindingResult bindingResult
     ) {
-        if(validationCheck(bindingResult.getFieldErrors())) return "Validation Error";
+        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
         User user = (User) request.getAttribute("user");
-        return commentService.createComment(user, scheduleId, dto);
+        CommentResponseDto responseDto = commentService.createComment(user, scheduleId, requestDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(responseDto);
     }
 
     @GetMapping
     public List<CommentResponseDto> findComments(@PathVariable Long scheduleId) {
-        return commentService.findComments(scheduleId).stream().map(CommentResponseDto::new).toList();
+        return commentService.findComments(scheduleId);
     }
 
     @PutMapping("/{commentId}")
-    public String updateComment(
+    public ResponseEntity<CommentResponseDto>  updateComment(
             HttpServletRequest request,
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
-            @Valid CommentRequestDto dto,
+            @Valid CommentRequestDto requestDto,
             BindingResult bindingResult
     ) {
-        if(validationCheck(bindingResult.getFieldErrors())) return "Validation Error";
+        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
         User user = (User) request.getAttribute("user");
-        return commentService.updateComment(user, commentId, dto);
+        CommentResponseDto responseDto = commentService.updateComment(user, scheduleId, commentId, requestDto);
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(responseDto);
     }
 
     @DeleteMapping("/{commentId}")
-    public String deleteComment(
+    public ResponseEntity<String> deleteComment(
             HttpServletRequest request,
             @PathVariable Long scheduleId,
             @PathVariable Long commentId
     ) {
         User user = (User) request.getAttribute("user");
-        return commentService.deleteComment(user, commentId);
+        commentService.deleteComment(user, scheduleId, commentId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body("Comment deleted Successfully");
     }
 
     public boolean validationCheck(List<FieldError> fieldErrors) {

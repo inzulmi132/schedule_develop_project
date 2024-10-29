@@ -1,6 +1,7 @@
 package com.sparta.scheduledevelop.domain.comment.service;
 
 import com.sparta.scheduledevelop.domain.comment.dto.CommentRequestDto;
+import com.sparta.scheduledevelop.domain.comment.dto.CommentResponseDto;
 import com.sparta.scheduledevelop.domain.comment.entity.Comment;
 import com.sparta.scheduledevelop.domain.comment.repository.CommentRepository;
 import com.sparta.scheduledevelop.domain.schedule.entity.Schedule;
@@ -19,45 +20,41 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ScheduleRepository scheduleRepository;
 
-    @Transactional
-    public String createComment(User creator, Long scheduleId, CommentRequestDto dto) {
+    public CommentResponseDto createComment(User creator, Long scheduleId, CommentRequestDto requestDto) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found"));
 
-        Comment comment = new Comment(dto.getText(), creator, schedule);
-        schedule.getCommentList().add(comment);
-        commentRepository.save(comment);
-        return "Comment created";
+        Comment comment = new Comment(requestDto.getText(), creator, schedule);
+        return new CommentResponseDto(commentRepository.save(comment));
     }
 
-    public List<Comment> findComments(Long scheduleId) {
-        return commentRepository.findAllByScheduleId(scheduleId);
-    }
-
-    @Transactional
-    public String updateComment(User user, Long commentId, CommentRequestDto dto) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-
-        if(!Objects.equals(user.getId(), comment.getCommentCreator().getId()))
-            return "You don't have permission to update this text";
-        comment.update(dto.getText());
-        return "Comment updated";
+    public List<CommentResponseDto> findComments(Long scheduleId) {
+        return commentRepository.findAllByScheduleId(scheduleId).stream().map(CommentResponseDto::new).toList();
     }
 
     @Transactional
-    public String deleteComment(User user, Long commentId) {
+    public CommentResponseDto updateComment(User user, Long scheduleId, Long commentId, CommentRequestDto requestDto) {
+        scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
+        if(!Objects.equals(user.getId(), comment.getCommentCreator().getId())) {
+            throw new RuntimeException("You don't have permission to update this text");
+        }
 
-        if(!Objects.equals(user.getId(), comment.getCommentCreator().getId()))
-            return "You don't have permission to delete this text";
+        comment.update(requestDto.getText());
+        return new CommentResponseDto(commentRepository.saveAndFlush(comment));
+    }
+
+    public void deleteComment(User user, Long scheduleId, Long commentId) {
+        scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+        if(!Objects.equals(user.getId(), comment.getCommentCreator().getId())) {
+            throw new RuntimeException("You don't have permission to delete this text");
+        }
+
         commentRepository.delete(comment);
-
-        Schedule schedule = comment.getSchedule();
-        schedule.getCommentList().remove(comment);
-        user.getCommentList().remove(comment);
-
-        return "Comment deleted";
     }
 }
