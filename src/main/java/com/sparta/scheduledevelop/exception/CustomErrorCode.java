@@ -10,6 +10,8 @@ public enum CustomErrorCode {
     // user error
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
     USER_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "유저 권한을 찾을 수 없습니다."),
+    USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "중복된 이메일 입니다."),
+    USER_PASSWORD_INCORRECT(HttpStatus.UNAUTHORIZED, "비밀번호가 틀렸습니다."),
 
     // schedule error
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다."),
@@ -22,9 +24,10 @@ public enum CustomErrorCode {
     TOKEN_UNSIGNED(HttpStatus.BAD_REQUEST, "유효하지 않는 JWT 서명입니다."),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),
     TOKEN_UNSUPPORTED(HttpStatus.UNAUTHORIZED, "지원되지 않는 JWT 토큰입니다."),
-    TOKEN_INVALID(HttpStatus.BAD_REQUEST, "잘못된 JWT 토큰입니다.")
+    TOKEN_INVALID(HttpStatus.BAD_REQUEST, "잘못된 JWT 토큰입니다."),
 
     // other error
+    ADMIN_PASSWORD_INCORRECT(HttpStatus.UNAUTHORIZED, "관리자 암호가 틀렸습니다.")
     ;
 
     private final HttpStatus httpStatus;

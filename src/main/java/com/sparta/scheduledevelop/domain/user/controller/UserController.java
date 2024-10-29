@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +27,11 @@ public class UserController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponseDto> signup(@Valid SignupRequestDto dto, BindingResult bindingResult) {
-        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
+    public ResponseEntity<UserResponseDto> signup(@Valid SignupRequestDto requestDto) {
+        UserResponseDto responseDto = userService.signup(requestDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(userService.signup(dto));
+                .body(responseDto);
     }
 
     @PostMapping("/login")
@@ -51,8 +49,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<UserResponseDto> updateUser(HttpServletRequest request, @Valid UserUpdateRequestDto dto, BindingResult bindingResult) {
-        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
+    public ResponseEntity<UserResponseDto> updateUser(HttpServletRequest request, @Valid UserUpdateRequestDto dto) {
         User user = (User) request.getAttribute("user");
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -66,12 +63,5 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body("Delete Successful");
-    }
-
-    public boolean validationCheck(List<FieldError> fieldErrors) {
-        if(fieldErrors.isEmpty()) return false;
-        for(FieldError fieldError : fieldErrors)
-            log.error("{} 필드 : {}", fieldError.getField(), fieldError.getDefaultMessage());
-        return true;
     }
 }

@@ -1,6 +1,7 @@
 package com.sparta.scheduledevelop.domain.user.service;
 
 import com.sparta.scheduledevelop.config.PasswordEncoder;
+import com.sparta.scheduledevelop.domain.schedule.entity.ScheduleAuthor;
 import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleAuthorRepository;
 import com.sparta.scheduledevelop.domain.user.dto.LoginRequestDto;
 import com.sparta.scheduledevelop.domain.user.dto.SignupRequestDto;
@@ -9,13 +10,14 @@ import com.sparta.scheduledevelop.domain.user.dto.UserUpdateRequestDto;
 import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.user.entity.UserRoleEnum;
 import com.sparta.scheduledevelop.domain.user.repository.UserRepository;
+import com.sparta.scheduledevelop.exception.CustomErrorCode;
+import com.sparta.scheduledevelop.exception.CustomException;
 import com.sparta.scheduledevelop.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -23,10 +25,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final ScheduleAuthorRepository scheduleAuthorRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
-    private final ScheduleAuthorRepository scheduleAuthorRepository;
 
     public UserResponseDto signup(SignupRequestDto dto) {
         String email = dto.getEmail();
@@ -34,11 +36,13 @@ public class UserService {
         String password = passwordEncoder.encode(dto.getPassword());
 
         Optional<User> checkUser = userRepository.findByEmail(email);
-        if(checkUser.isPresent()) throw new RuntimeException("중복된 Email 입니다.");
+        if(checkUser.isPresent()) throw new CustomException(CustomErrorCode.USER_EMAIL_DUPLICATED);
 
         UserRoleEnum role = UserRoleEnum.USER;
         if(dto.isAdmin()) {
-            if(!Objects.equals(dto.getAdminToken(), ADMIN_TOKEN)) throw new RuntimeException("관리자 암호가 틀렸습니다.");
+            if(!Objects.equals(dto.getAdminToken(), ADMIN_TOKEN)) {
+                throw new CustomException(CustomErrorCode.ADMIN_PASSWORD_INCORRECT);
+            }
             role = UserRoleEnum.ADMIN;
         }
 
@@ -51,10 +55,10 @@ public class UserService {
         String password = dto.getPassword();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자 입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 
         if(!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("잘못된 비밀번호 입니다.");
+            throw new CustomException(CustomErrorCode.USER_PASSWORD_INCORRECT);
         }
 
         return jwtUtil.createToken(email, user.getRole());
@@ -73,7 +77,8 @@ public class UserService {
     }
 
     public void deleteUser(User user) {
-        scheduleAuthorRepository.deleteAll(user.getAuthList());
+        List<ScheduleAuthor> authList = scheduleAuthorRepository.findAllByAuthor(user);
+        scheduleAuthorRepository.deleteAll(authList);
         userRepository.delete(user);
     }
 }
