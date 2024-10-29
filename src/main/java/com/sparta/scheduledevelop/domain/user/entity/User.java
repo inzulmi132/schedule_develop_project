@@ -3,11 +3,11 @@ package com.sparta.scheduledevelop.domain.user.entity;
 import com.sparta.scheduledevelop.domain.comment.entity.Comment;
 import com.sparta.scheduledevelop.domain.common.entity.Timestamped;
 import com.sparta.scheduledevelop.domain.schedule.entity.Schedule;
+import com.sparta.scheduledevelop.domain.schedule.entity.ScheduleAuthor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,14 +28,14 @@ public class User extends Timestamped {
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
 
-    @OneToMany(mappedBy = "scheduleCreator")
-    private List<Schedule> scheduleList = new ArrayList<>();
+    @OneToMany(mappedBy = "scheduleCreator", cascade = CascadeType.REMOVE)
+    private List<Schedule> scheduleList;
 
-    @ManyToMany(mappedBy = "authorList")
-    private List<Schedule> authList = new ArrayList<>();
+    @OneToMany(mappedBy = "author")
+    private List<ScheduleAuthor> authList;
 
     @OneToMany(mappedBy = "commentCreator")
-    private List<Comment> commentList = new ArrayList<>();
+    private List<Comment> commentList;
 
     public User(String email, String name, String password, UserRoleEnum role) {
         this.email = email;

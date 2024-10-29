@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,13 +30,10 @@ public class Schedule extends Timestamped {
     private User scheduleCreator;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
-    private List<Comment> commentList = new ArrayList<>();
+    private List<Comment> commentList;
 
-    @ManyToMany
-    @JoinTable(name = "userSchedule",
-    joinColumns = @JoinColumn(name = "schedule_id"),
-    inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> authorList = new ArrayList<>();
+    @OneToMany(mappedBy = "schedule")
+    private List<ScheduleAuthor> authorList;
 
     public Schedule(User scheduleCreator, ScheduleRequestDto dto, String weather) {
         this.scheduleCreator = scheduleCreator;
