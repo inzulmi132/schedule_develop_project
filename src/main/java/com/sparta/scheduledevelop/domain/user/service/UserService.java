@@ -1,6 +1,7 @@
 package com.sparta.scheduledevelop.domain.user.service;
 
 import com.sparta.scheduledevelop.config.PasswordEncoder;
+import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleAuthorRepository;
 import com.sparta.scheduledevelop.domain.user.dto.LoginRequestDto;
 import com.sparta.scheduledevelop.domain.user.dto.SignupRequestDto;
 import com.sparta.scheduledevelop.domain.user.dto.UserResponseDto;
@@ -25,6 +26,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+    private final ScheduleAuthorRepository scheduleAuthorRepository;
 
     public UserResponseDto signup(SignupRequestDto dto) {
         String email = dto.getEmail();
@@ -71,6 +73,7 @@ public class UserService {
     }
 
     public void deleteUser(User user) {
+        scheduleAuthorRepository.deleteAll(user.getAuthList());
         userRepository.delete(user);
     }
 }

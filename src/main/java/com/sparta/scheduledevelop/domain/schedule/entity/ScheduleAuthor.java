@@ -21,4 +21,9 @@ public class ScheduleAuthor {
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
+
+    public ScheduleAuthor(Schedule schedule, User author) {
+        this.schedule = schedule;
+        this.author = author;
+    }
 }
