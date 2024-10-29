@@ -2,16 +2,14 @@ package com.sparta.scheduledevelop.domain.comment.controller;
 
 import com.sparta.scheduledevelop.domain.comment.dto.CommentRequestDto;
 import com.sparta.scheduledevelop.domain.comment.dto.CommentResponseDto;
-import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.comment.service.CommentService;
+import com.sparta.scheduledevelop.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,12 +22,11 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(HttpServletRequest request,
-                                        @PathVariable Long scheduleId,
-                                        @Valid CommentRequestDto requestDto,
-                                        BindingResult bindingResult
+    public ResponseEntity<CommentResponseDto> createComment(
+            HttpServletRequest request,
+            @PathVariable Long scheduleId,
+            @Valid CommentRequestDto requestDto
     ) {
-        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
         User user = (User) request.getAttribute("user");
         CommentResponseDto responseDto = commentService.createComment(user, scheduleId, requestDto);
         return ResponseEntity
@@ -47,10 +44,8 @@ public class CommentController {
             HttpServletRequest request,
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
-            @Valid CommentRequestDto requestDto,
-            BindingResult bindingResult
+            @Valid CommentRequestDto requestDto
     ) {
-        if(validationCheck(bindingResult.getFieldErrors())) throw new RuntimeException("Validation Exception");
         User user = (User) request.getAttribute("user");
         CommentResponseDto responseDto = commentService.updateComment(user, scheduleId, commentId, requestDto);
         return ResponseEntity
@@ -69,12 +64,5 @@ public class CommentController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body("Comment deleted Successfully");
-    }
-
-    public boolean validationCheck(List<FieldError> fieldErrors) {
-        if(fieldErrors.isEmpty()) return false;
-        for(FieldError fieldError : fieldErrors)
-            log.error("{} 필드 : {}", fieldError.getField(), fieldError.getDefaultMessage());
-        return true;
     }
 }

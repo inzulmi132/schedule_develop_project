@@ -7,6 +7,8 @@ import com.sparta.scheduledevelop.domain.comment.repository.CommentRepository;
 import com.sparta.scheduledevelop.domain.schedule.entity.Schedule;
 import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleRepository;
 import com.sparta.scheduledevelop.domain.user.entity.User;
+import com.sparta.scheduledevelop.exception.CustomErrorCode;
+import com.sparta.scheduledevelop.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,7 @@ public class CommentService {
 
     public CommentResponseDto createComment(User creator, Long scheduleId, CommentRequestDto requestDto) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
 
         Comment comment = new Comment(requestDto.getText(), creator, schedule);
         return new CommentResponseDto(commentRepository.save(comment));
@@ -35,11 +37,11 @@ public class CommentService {
     @Transactional
     public CommentResponseDto updateComment(User user, Long scheduleId, Long commentId, CommentRequestDto requestDto) {
         scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
         if(!Objects.equals(user.getId(), comment.getCommentCreator().getId())) {
-            throw new RuntimeException("You don't have permission to update this text");
+            throw new CustomException(CustomErrorCode.INVALID_UPDATE);
         }
 
         comment.update(requestDto.getText());
@@ -48,11 +50,11 @@ public class CommentService {
 
     public void deleteComment(User user, Long scheduleId, Long commentId) {
         scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
         if(!Objects.equals(user.getId(), comment.getCommentCreator().getId())) {
-            throw new RuntimeException("You don't have permission to delete this text");
+            throw new CustomException(CustomErrorCode.INVALID_DELETE);
         }
 
         commentRepository.delete(comment);
