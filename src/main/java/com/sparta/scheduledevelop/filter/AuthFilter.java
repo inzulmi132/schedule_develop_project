@@ -2,12 +2,13 @@ package com.sparta.scheduledevelop.filter;
 
 import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.user.entity.UserRoleEnum;
-import com.sparta.scheduledevelop.jwt.JwtUtil;
 import com.sparta.scheduledevelop.domain.user.repository.UserRepository;
+import com.sparta.scheduledevelop.exception.CustomErrorCode;
+import com.sparta.scheduledevelop.exception.CustomException;
+import com.sparta.scheduledevelop.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -45,27 +46,20 @@ public class AuthFilter implements Filter {
 
         String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
         if(!StringUtils.hasText(tokenValue)) {
-            ((HttpServletResponse) response).setStatus(400);
-            return;
+            throw new CustomException(CustomErrorCode.TOKEN_NOT_FOUND);
         }
 
         String token = jwtUtil.substringToken(tokenValue);
-        String validateToken = jwtUtil.validateToken(token);
-        if(!validateToken.isEmpty()) {
-            if(validateToken.startsWith("Expired JWT token")) {
-                ((HttpServletResponse) response).setStatus(401);
-                return;
-            }
-            throw new IllegalArgumentException("Token Error");
-        }
-
+        jwtUtil.validateToken(token);
         Claims info = jwtUtil.getUserInfoFromToken(token);
 
-        User user = userRepository.findByEmail(info.getSubject()).orElse(null);
-        if(user == null) throw new NullPointerException("Not Found User");
+        User user = userRepository.findByEmail(info.getSubject())
+                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 
         String userRole = info.get(JwtUtil.AUTHORIZATION_KEY, String.class);
-        if(userRole == null) throw new NullPointerException("Not Found UserRole");
+        if(userRole == null) {
+            throw new CustomException(CustomErrorCode.USER_ROLE_NOT_FOUND);
+        }
         UserRoleEnum role = UserRoleEnum.valueOf(userRole);
 
         request.setAttribute("user", user);

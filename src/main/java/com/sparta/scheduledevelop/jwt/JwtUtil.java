@@ -1,6 +1,8 @@
 package com.sparta.scheduledevelop.jwt;
 
 import com.sparta.scheduledevelop.domain.user.entity.UserRoleEnum;
+import com.sparta.scheduledevelop.exception.CustomErrorCode;
+import com.sparta.scheduledevelop.exception.CustomException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -68,19 +70,17 @@ public class JwtUtil {
         res.addCookie(cookie);
     }
 
-    // 오류 문구 반환
-    public String validateToken(String token) {
+    public void validateToken(String token) throws CustomException {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return "";
         } catch (SecurityException | MalformedJwtException e) {
-            return "Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.";
+            throw new CustomException(CustomErrorCode.TOKEN_UNSIGNED);
         } catch (ExpiredJwtException e) {
-            return "Expired JWT token, 만료된 JWT token 입니다.";
+            throw new CustomException(CustomErrorCode.TOKEN_EXPIRED);
         } catch (UnsupportedJwtException e) {
-            return "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.";
+            throw new CustomException(CustomErrorCode.TOKEN_UNSUPPORTED);
         } catch (IllegalArgumentException e) {
-            return "JWT claims is empty, 잘못된 JWT 토큰 입니다.";
+            throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         }
     }
 
