@@ -63,7 +63,7 @@ public class ScheduleController {
             int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        return scheduleService.findAllSchedulesByPage(page-1, size).map(ScheduleResponseDto::new);
+        return scheduleService.findAllSchedulesByPage(page-1, size);
     }
 
     @PutMapping("/{scheduleId}")

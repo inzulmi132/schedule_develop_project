@@ -31,7 +31,7 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "scheduleCreator", cascade = CascadeType.REMOVE)
     private List<Schedule> scheduleList;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
     private List<ScheduleAuthor> authList;
 
     @OneToMany(mappedBy = "commentCreator")

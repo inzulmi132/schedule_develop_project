@@ -1,8 +1,6 @@
 package com.sparta.scheduledevelop.domain.user.service;
 
 import com.sparta.scheduledevelop.config.PasswordEncoder;
-import com.sparta.scheduledevelop.domain.schedule.entity.ScheduleAuthor;
-import com.sparta.scheduledevelop.domain.schedule.repository.ScheduleAuthorRepository;
 import com.sparta.scheduledevelop.domain.user.dto.LoginRequestDto;
 import com.sparta.scheduledevelop.domain.user.dto.SignupRequestDto;
 import com.sparta.scheduledevelop.domain.user.dto.UserResponseDto;
@@ -25,7 +23,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final ScheduleAuthorRepository scheduleAuthorRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -77,8 +74,6 @@ public class UserService {
     }
 
     public void deleteUser(User user) {
-        List<ScheduleAuthor> authList = scheduleAuthorRepository.findAllByAuthor(user);
-        scheduleAuthorRepository.deleteAll(authList);
         userRepository.delete(user);
     }
 }

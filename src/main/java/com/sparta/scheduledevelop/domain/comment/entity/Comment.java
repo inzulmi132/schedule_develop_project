@@ -16,7 +16,7 @@ public class Comment extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String text;
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -26,13 +26,13 @@ public class Comment extends Timestamped {
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
-    public Comment(String text, User commentCreator, Schedule schedule) {
-        this.text = text;
+    public Comment(String content, User commentCreator, Schedule schedule) {
+        this.content = content;
         this.commentCreator = commentCreator;
         this.schedule = schedule;
     }
 
     public void update(String text) {
-        this.text = text;
+        this.content = text;
     }
 }

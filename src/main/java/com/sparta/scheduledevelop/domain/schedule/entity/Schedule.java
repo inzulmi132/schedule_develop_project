@@ -32,7 +32,7 @@ public class Schedule extends Timestamped {
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
     private List<Comment> commentList;
 
-    @OneToMany(mappedBy = "schedule")
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE)
     private List<ScheduleAuthor> authorList;
 
     public Schedule(User scheduleCreator, ScheduleRequestDto dto, String weather) {

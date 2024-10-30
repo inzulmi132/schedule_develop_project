@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +39,7 @@ public class ScheduleService {
 
     // 일정의 작성자가 담당 유저 배치
     public void addScheduleAuthor(User user, Long scheduleId, Long authorId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        Schedule schedule = findById(scheduleId);
         if(!Objects.equals(user.getId(), schedule.getScheduleCreator().getId()))
             throw new CustomException(CustomErrorCode.INVALID_ADD_AUTHOR);
         User author = userRepository.findById(authorId)
@@ -52,25 +50,25 @@ public class ScheduleService {
     }
 
     public List<ScheduleResponseDto> findAllSchedules() {
-        return scheduleRepository.findAllByOrderByModifiedAtDesc().stream().map(ScheduleResponseDto::new).toList();
+        return scheduleRepository.findAllByOrderByModifiedAtDesc()
+                .stream()
+                .map(ScheduleResponseDto::new)
+                .toList();
     }
 
     public ScheduleResponseDto findScheduleById(Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        Schedule schedule = findById(scheduleId);
         return new ScheduleResponseDto(schedule);
     }
 
-    public Page<Schedule> findAllSchedulesByPage(int page, int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "modifiedAt");
-        Pageable pageable = PageRequest.of(page, size, sort);
-        return scheduleRepository.findAll(pageable);
+    public Page<ScheduleResponseDto> findAllSchedulesByPage(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return scheduleRepository.findAllByOrderByModifiedAtDesc(pageable).map(ScheduleResponseDto::new);
     }
 
     @Transactional
     public ScheduleResponseDto updateSchedule(User user, UserRoleEnum role, Long scheduleId, ScheduleRequestDto requestDto) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        Schedule schedule = findById(scheduleId);
         if(isNotAuthorized(user, role, schedule)) {
             throw new CustomException(CustomErrorCode.INVALID_UPDATE);
         }
@@ -80,13 +78,11 @@ public class ScheduleService {
 
     @Transactional
     public void deleteSchedule(User user, UserRoleEnum role, Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        Schedule schedule = findById(scheduleId);
         if(isNotAuthorized(user, role, schedule)) {
             throw new CustomException(CustomErrorCode.INVALID_DELETE);
         }
-        scheduleAuthorRepository.deleteAll(schedule.getAuthorList());
-        scheduleRepository.deleteById(scheduleId);
+        scheduleRepository.delete(schedule);
     }
 
     // 수정 및 삭제 시 권한을 확인하는 메서드
@@ -94,13 +90,16 @@ public class ScheduleService {
         if(role == UserRoleEnum.ADMIN) {
             return false;
         }
-
         User creator = schedule.getScheduleCreator();
         if(Objects.equals(creator.getId(), user.getId())) {
             return false;
         }
-
         List<User> authorList = schedule.getAuthorList().stream().map(ScheduleAuthor::getAuthor).toList();
         return !authorList.contains(user);
+    }
+
+    public Schedule findById(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
     }
 }
