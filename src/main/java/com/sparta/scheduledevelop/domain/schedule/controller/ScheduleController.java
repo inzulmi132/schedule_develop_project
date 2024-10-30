@@ -1,11 +1,12 @@
 package com.sparta.scheduledevelop.domain.schedule.controller;
 
+import com.sparta.scheduledevelop.domain.common.annotation.LoginRole;
+import com.sparta.scheduledevelop.domain.common.annotation.LoginUser;
 import com.sparta.scheduledevelop.domain.schedule.dto.ScheduleRequestDto;
 import com.sparta.scheduledevelop.domain.schedule.dto.ScheduleResponseDto;
 import com.sparta.scheduledevelop.domain.schedule.service.ScheduleService;
 import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.user.entity.UserRoleEnum;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,9 @@ public class ScheduleController {
 
     @PostMapping
     public ResponseEntity<ScheduleResponseDto> createSchedule(
-            HttpServletRequest request,
+            @LoginUser User user,
             @Valid ScheduleRequestDto requestDto
     ) {
-        User user = (User) request.getAttribute("user");
         ScheduleResponseDto responseDto = scheduleService.createSchedule(user, requestDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -38,11 +38,10 @@ public class ScheduleController {
     // 일정 담장 유저 배치
     @PostMapping("/{scheduleId}/author/{authorId}")
     public ResponseEntity<String> addScheduleAuthor(
-            HttpServletRequest request,
+            @LoginUser User user,
             @PathVariable Long scheduleId,
             @PathVariable Long authorId
     ) {
-        User user = (User) request.getAttribute("user");
         scheduleService.addScheduleAuthor(user, scheduleId, authorId);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -69,12 +68,11 @@ public class ScheduleController {
 
     @PutMapping("/{scheduleId}")
     public ResponseEntity<ScheduleResponseDto> updateSchedule(
-            HttpServletRequest request,
+            @LoginUser User user,
+            @LoginRole UserRoleEnum role,
             @PathVariable Long scheduleId,
             @Valid ScheduleRequestDto dto
     ) {
-        User user = (User) request.getAttribute("user");
-        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
         ScheduleResponseDto responseDto = scheduleService.updateSchedule(user, role, scheduleId, dto);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -83,11 +81,10 @@ public class ScheduleController {
 
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<String> deleteSchedule(
-            HttpServletRequest request,
+            @LoginUser User user,
+            @LoginRole UserRoleEnum role,
             @PathVariable Long scheduleId
     ) {
-        User user = (User) request.getAttribute("user");
-        UserRoleEnum role = (UserRoleEnum) request.getAttribute("role");
         scheduleService.deleteSchedule(user, role, scheduleId);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)

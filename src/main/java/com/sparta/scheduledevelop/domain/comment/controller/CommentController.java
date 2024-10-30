@@ -3,8 +3,8 @@ package com.sparta.scheduledevelop.domain.comment.controller;
 import com.sparta.scheduledevelop.domain.comment.dto.CommentRequestDto;
 import com.sparta.scheduledevelop.domain.comment.dto.CommentResponseDto;
 import com.sparta.scheduledevelop.domain.comment.service.CommentService;
+import com.sparta.scheduledevelop.domain.common.annotation.LoginUser;
 import com.sparta.scheduledevelop.domain.user.entity.User;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +23,10 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(
-            HttpServletRequest request,
+            @LoginUser User user,
             @PathVariable Long scheduleId,
             @Valid CommentRequestDto requestDto
     ) {
-        User user = (User) request.getAttribute("user");
         CommentResponseDto responseDto = commentService.createComment(user, scheduleId, requestDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -41,12 +40,11 @@ public class CommentController {
 
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto>  updateComment(
-            HttpServletRequest request,
+            @LoginUser User user,
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
             @Valid CommentRequestDto requestDto
     ) {
-        User user = (User) request.getAttribute("user");
         CommentResponseDto responseDto = commentService.updateComment(user, scheduleId, commentId, requestDto);
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -55,11 +53,10 @@ public class CommentController {
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(
-            HttpServletRequest request,
+            @LoginUser User user,
             @PathVariable Long scheduleId,
             @PathVariable Long commentId
     ) {
-        User user = (User) request.getAttribute("user");
         commentService.deleteComment(user, scheduleId, commentId);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)

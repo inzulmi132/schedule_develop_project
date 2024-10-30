@@ -1,5 +1,6 @@
 package com.sparta.scheduledevelop.domain.user.controller;
 
+import com.sparta.scheduledevelop.domain.common.annotation.LoginUser;
 import com.sparta.scheduledevelop.domain.user.dto.LoginRequestDto;
 import com.sparta.scheduledevelop.domain.user.dto.SignupRequestDto;
 import com.sparta.scheduledevelop.domain.user.dto.UserResponseDto;
@@ -7,7 +8,6 @@ import com.sparta.scheduledevelop.domain.user.dto.UserUpdateRequestDto;
 import com.sparta.scheduledevelop.domain.user.entity.User;
 import com.sparta.scheduledevelop.domain.user.service.UserService;
 import com.sparta.scheduledevelop.jwt.JwtUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,16 +49,14 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<UserResponseDto> updateUser(HttpServletRequest request, @Valid UserUpdateRequestDto dto) {
-        User user = (User) request.getAttribute("user");
+    public ResponseEntity<UserResponseDto> updateUser(@LoginUser User user, @Valid UserUpdateRequestDto dto) {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body(userService.updateUser(user, dto));
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteUser(HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
+    public ResponseEntity<String> deleteUser(@LoginUser User user) {
         userService.deleteUser(user);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
