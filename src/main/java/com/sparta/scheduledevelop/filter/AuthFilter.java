@@ -32,27 +32,19 @@ public class AuthFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String uri = httpServletRequest.getRequestURI();
-        String mapping = httpServletRequest.getMethod();
+        String method = httpServletRequest.getMethod();
 
         if(StringUtils.hasText(uri) && (uri.endsWith("signup") || uri.endsWith("login"))) {
             chain.doFilter(request, response);
             return;
         }
 
-        if(mapping.equals("GET")) {
+        if(method.equals("GET")) {
             chain.doFilter(request, response);
             return;
         }
 
-        String tokenValue = jwtUtil.getTokenFromRequest(httpServletRequest);
-        if(!StringUtils.hasText(tokenValue)) {
-            throw new CustomException(CustomErrorCode.TOKEN_NOT_FOUND);
-        }
-
-        String token = jwtUtil.substringToken(tokenValue);
-        jwtUtil.validateToken(token);
-        Claims info = jwtUtil.getUserInfoFromToken(token);
-
+        Claims info = jwtUtil.getUserInfoFromRequest(httpServletRequest);
         User user = userRepository.findByEmail(info.getSubject())
                 .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 

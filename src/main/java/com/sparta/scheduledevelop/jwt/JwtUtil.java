@@ -54,20 +54,33 @@ public class JwtUtil {
                         .compact();
     }
 
-    public String substringToken(String tokenValue) {
-        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX))
-            return tokenValue.substring(7);
-
-        logger.error("Not Found Token");
-        throw new NullPointerException("Not Found Token");
-    }
-
     // JWT Cookie 에 저장
     public void addJwtToCookie(String token, HttpServletResponse res) {
         token = URLEncoder.encode(token, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token);
         cookie.setPath("/");
         res.addCookie(cookie);
+    }
+
+    public Claims getUserInfoFromRequest(HttpServletRequest httpServletRequest) {
+        Cookie[] cookies = httpServletRequest.getCookies();
+        if(cookies == null) {
+            throw new CustomException(CustomErrorCode.TOKEN_NOT_FOUND);
+        }
+
+        String token = null;
+        for(Cookie cookie : cookies) {
+            if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
+                token = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+            }
+        }
+        if(!StringUtils.hasText(token) || !token.startsWith(BEARER_PREFIX)) {
+            throw new CustomException(CustomErrorCode.TOKEN_NOT_FOUND);
+        }
+        token = token.substring(7);
+        validateToken(token);
+
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
     public void validateToken(String token) throws CustomException {
@@ -82,20 +95,5 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) {
             throw new CustomException(CustomErrorCode.TOKEN_INVALID);
         }
-    }
-
-    public Claims getUserInfoFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-    }
-
-    public String getTokenFromRequest(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        if(cookies == null) return null;
-
-        for (Cookie cookie : cookies)
-            if (cookie.getName().equals(AUTHORIZATION_HEADER))
-                return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
-
-        return null;
     }
 }
